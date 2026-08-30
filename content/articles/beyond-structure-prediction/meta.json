@@ -1,0 +1,21 @@
+{
+  "slug": "beyond-structure-prediction",
+  "date": "2026-08-20",
+  "topics": ["foundation-models", "protein-structure"],
+  "papers": ["alphafold-3"],
+  "draft": false,
+  "featured": true,
+  "demo": true,
+  "translations": {
+    "zh": {
+      "title": "超越结构预测：分子模型究竟学到了什么？",
+      "summary": "从输入表示、生成目标和评估边界出发，拆解新一代分子模型真正捕获的生物学规律。",
+      "readingMinutes": 12
+    },
+    "en": {
+      "title": "Beyond structure prediction: what does a molecular model actually learn?",
+      "summary": "A close reading of representation, generative objectives, and the biological limits of modern molecular models.",
+      "readingMinutes": 12
+    }
+  }
+}

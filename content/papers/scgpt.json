@@ -1,0 +1,17 @@
+{
+  "slug": "scgpt",
+  "originalTitle": "scGPT: toward building a foundation model for single-cell multi-omics using generative AI",
+  "authors": ["Haotian Cui", "Chloe Wang", "Hassaan Maan", "Bo Wang"],
+  "year": 2024,
+  "venue": "Nature Methods",
+  "doi": "10.1038/s41592-024-02201-0",
+  "url": "https://www.nature.com/articles/s41592-024-02201-0",
+  "arxiv": "2302.08091",
+  "topics": ["foundation-models", "single-cell"],
+  "articles": ["how-to-read-ai-bio-paper"],
+  "demo": true,
+  "summaries": {
+    "zh": "面向单细胞多组学数据的生成式预训练基础模型，并在多种下游任务上进行评估。",
+    "en": "A generatively pretrained foundation model for single-cell multi-omics, evaluated across a range of downstream tasks."
+  }
+}

@@ -1,0 +1,45 @@
+> **Demo article:** This piece demonstrates AI × Bio’s support for long-form notes, equations, code, and citations. Replace or extend it with your own research before publication.
+
+## Reframing the prediction problem
+
+Protein structure prediction is often described as a map from sequence $s$ to three-dimensional coordinates $x$:
+
+$$
+p_\theta(x\mid s)=\int p_\theta(x\mid z,s)p_\theta(z\mid s)\,dz
+$$
+
+For complexes that contain proteins, nucleic acids, small molecules, and ions, however, the model is doing more than coordinate regression. It must also learn which entities might interact, how chemistry constrains local geometry, and which biases in the data can masquerade as biological rules.
+
+## Three questions for a close reading
+
+### 1. What is already encoded in the representation?
+
+Atom types, bonds, residue indices, and templates are not neutral inputs. A careful reading separates structures the model **learns** from structures the researcher has **encoded in advance**.
+
+### 2. What does the objective reward?
+
+A diffusion model can formulate coordinate generation as iterative denoising. In deliberately simplified pseudocode:
+
+```python
+for t in reversed(noise_schedule):
+    score = model(noisy_coordinates, tokens, t)
+    noisy_coordinates = denoise(noisy_coordinates, score, t)
+```
+
+A high benchmark score does not automatically imply an understanding of binding free energy, conformational dynamics, or the cellular environment.
+
+### 3. Where does failure concentrate?
+
+The most informative question is often where a model fails: which molecular classes, conformational states, or out-of-distribution examples expose its limits? Failure modes reveal more about a model’s knowledge boundary than one average score.
+
+## A reusable reading checklist
+
+1. Identify the biological object and experimental reference.
+2. Draw the data flow from input representation to latent state to output.
+3. Separate the training objective, validation metric, and real-world goal.
+4. Record leakage risks, homology controls, and temporal splits.
+5. Turn unanswered questions into the next research note.
+
+AlphaFold 3 demonstrates a unified approach to modelling interactions across biomolecular classes, and makes the question “what does the model know?” even more important to revisit.[^paper]
+
+[^paper]: Abramson et al., *Accurate structure prediction of biomolecular interactions with AlphaFold 3*, Nature 630, 493–500 (2024).

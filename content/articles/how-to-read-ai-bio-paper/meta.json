@@ -1,0 +1,21 @@
+{
+  "slug": "how-to-read-ai-bio-paper",
+  "date": "2026-08-12",
+  "topics": ["research-methods", "single-cell"],
+  "papers": ["scgpt"],
+  "draft": false,
+  "featured": false,
+  "demo": true,
+  "translations": {
+    "zh": {
+      "title": "如何阅读一篇 AI × Bio 论文",
+      "summary": "一套把机器学习指标还原成生物学问题的五步阅读框架。",
+      "readingMinutes": 8
+    },
+    "en": {
+      "title": "How to read an AI × Bio paper",
+      "summary": "A five-step framework for translating machine-learning metrics back into biological questions.",
+      "readingMinutes": 8
+    }
+  }
+}
