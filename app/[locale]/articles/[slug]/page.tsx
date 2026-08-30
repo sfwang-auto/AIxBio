@@ -3,11 +3,17 @@ import Link from 'next/link';
 import { ArrowLeft, Clock3 } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { PaperCard } from '@/components/content-cards';
-import { articleBySlug, formatDate, paperBySlug, topicName } from '@/lib/content';
+import { articleBySlug, articles, formatDate, paperBySlug, topicName } from '@/lib/content';
 import { articleBodies } from '@/lib/generated-content';
 import { t } from '@/lib/i18n';
-import { isLocale, siteUrl } from '@/lib/site';
+import { isLocale, locales, siteUrl } from '@/lib/site';
 import type { Locale } from '@/lib/types';
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return locales.flatMap((locale) => articles.map((article) => ({ locale, slug: article.slug })));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params; if (!isLocale(locale)) return {}; const article = articleBySlug(slug); if (!article) return {}; const text = article.translations[locale];

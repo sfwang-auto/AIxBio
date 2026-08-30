@@ -3,10 +3,16 @@ import Link from 'next/link';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { ArticleCard } from '@/components/content-cards';
-import { articleBySlug, authorsShort, paperBySlug, topicName } from '@/lib/content';
+import { articleBySlug, authorsShort, paperBySlug, papers, topicName } from '@/lib/content';
 import { t } from '@/lib/i18n';
-import { isLocale } from '@/lib/site';
+import { isLocale, locales } from '@/lib/site';
 import type { Locale } from '@/lib/types';
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return locales.flatMap((locale) => papers.map((paper) => ({ locale, slug: paper.slug })));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params; if (!isLocale(locale)) return {}; const paper = paperBySlug(slug); if (!paper) return {};

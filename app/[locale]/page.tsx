@@ -7,6 +7,17 @@ import { isLocale } from '@/lib/site';
 import type { Locale } from '@/lib/types';
 import { notFound } from 'next/navigation';
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const copy = t(locale);
+  return {
+    title: locale === 'zh' ? '阅读智能，理解生命系统' : 'Reading intelligence, understanding living systems',
+    description: copy.intro,
+    alternates: { canonical: `/${locale}`, languages: { 'zh-CN': '/zh', en: '/en' } },
+  };
+}
+
 export default async function LocalizedHome({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params; if (!isLocale(rawLocale)) notFound(); const locale: Locale = rawLocale; const copy = t(locale);
   const featured = articles.find((article) => article.featured) ?? articles[0]; const featureText = featured.translations[locale]; const deskPaper = papers.find((paper) => featured.papers.includes(paper.slug)) ?? papers[0];
@@ -24,3 +35,4 @@ export default async function LocalizedHome({ params }: { params: Promise<{ loca
     <section className="home-section paper-section"><div className="section-heading"><div><span>03</span><h2>{copy.recentPapers}</h2></div><Link href={`/${locale}/papers`}>{copy.browsePapers} <ArrowRight /></Link></div><div className="paper-grid">{papers.slice(0, 2).map((paper, index) => <PaperCard key={paper.slug} paper={paper} locale={locale} index={index} />)}</div></section>
   </main>;
 }
+import type { Metadata } from 'next';
