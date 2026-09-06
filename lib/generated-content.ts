@@ -4,8 +4,11 @@ import Article0Zh from './generated/articles/beyond-structure-prediction.zh';
 import Article0En from './generated/articles/beyond-structure-prediction.en';
 import Article1Zh from './generated/articles/how-to-read-ai-bio-paper.zh';
 import Article1En from './generated/articles/how-to-read-ai-bio-paper.en';
+import Article2Zh from './generated/articles/riboseek-fast-nucleotide-alignment.zh';
+import Article2En from './generated/articles/riboseek-fast-nucleotide-alignment.en';
 
 export const articleBodies: Record<string, Record<'zh' | 'en', ComponentType<Record<string, unknown>>>> = {
   "beyond-structure-prediction": { zh: Article0Zh, en: Article0En },
   "how-to-read-ai-bio-paper": { zh: Article1Zh, en: Article1En },
+  "riboseek-fast-nucleotide-alignment": { zh: Article2Zh, en: Article2En },
 };

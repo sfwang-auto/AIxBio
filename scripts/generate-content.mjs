@@ -15,6 +15,7 @@ const articlesRoot = path.join(root, 'content/articles');
 const papersRoot = path.join(root, 'content/papers');
 const generatedRoot = path.join(root, 'lib/generated');
 const generatedArticles = path.join(generatedRoot, 'articles');
+const siteBasePath = '/AIxBio';
 
 const localeCopy = z.object({
   title: z.string().min(1),
@@ -61,6 +62,10 @@ function assertUnique(records, label) {
   if (slugs.size !== records.length) throw new Error(`Duplicate ${label} slug detected`);
 }
 
+function normalizeArticleAssetPaths(source) {
+  return source.replace(/(!\[[^\]]*\]\()\.\.\/\.\.\/\.\.\/public\/([^)]+)(\))/g, (_match, prefix, assetPath, suffix) => `${prefix}${siteBasePath}/${assetPath}${suffix}`);
+}
+
 function runSelfTest() {
   const validArticle = { slug: 'test-article', date: '2026-08-30', topics: ['test'], papers: [], draft: false, featured: false, demo: true, translations: { zh: { title: '测试', summary: '摘要', readingMinutes: 1 }, en: { title: 'Test', summary: 'Summary', readingMinutes: 1 } } };
   const validPaper = { slug: 'test-paper', originalTitle: 'Test paper', authors: ['A. Author'], year: 2026, venue: 'Test', doi: null, url: 'https://example.com/paper', arxiv: null, topics: ['test'], articles: [], demo: true, summaries: { zh: '摘要', en: 'Summary' } };
@@ -73,6 +78,8 @@ function runSelfTest() {
   let duplicateRejected = false;
   try { assertUnique([validArticle, validArticle], 'article'); } catch { duplicateRejected = true; }
   if (!duplicateRejected) throw new Error('Self-test failed: duplicate slug was accepted');
+  const normalizedImage = normalizeArticleAssetPaths('![Alt](../../../public/images/example.png)');
+  if (normalizedImage !== '![Alt](/AIxBio/images/example.png)') throw new Error('Self-test failed: local article image path was not normalized');
   console.log('Content contract self-test passed: bilingual pairing, dates, HTTPS URLs, and duplicate slugs are enforced.');
 }
 
@@ -102,7 +109,7 @@ async function main() {
       catch { throw new Error(`Article "${article.slug}" is missing required ${locale}.mdx`); }
       const slugger = new GithubSlugger();
       article.toc[locale] = [...source.matchAll(/^(#{2,3})\s+(.+)$/gm)].map((match) => ({ id: slugger.slug(match[2].replace(/[*_`]/g, '')), title: match[2].replace(/[*_`]/g, ''), level: match[1].length }));
-      const compiled = await compile(source, {
+      const compiled = await compile(normalizeArticleAssetPaths(source), {
         outputFormat: 'program',
         jsx: false,
         remarkPlugins: [remarkGfm, remarkMath],

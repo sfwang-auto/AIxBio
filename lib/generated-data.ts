@@ -154,9 +154,161 @@ export const articles = [
         }
       ]
     }
+  },
+  {
+    "slug": "riboseek-fast-nucleotide-alignment",
+    "date": "2026-07-31",
+    "topics": [
+      "nucleic-acids",
+      "research-methods"
+    ],
+    "papers": [
+      "riboseek"
+    ],
+    "draft": false,
+    "featured": false,
+    "demo": false,
+    "translations": {
+      "zh": {
+        "title": "Riboseek：为 RNA 结构预测加速远缘同源搜索",
+        "summary": "从重叠二联体到迭代搜索，解析 Riboseek 如何加速核酸 MSA 生成，以及搜索速度、同源检出能力与比对质量之间的权衡。",
+        "readingMinutes": 14
+      },
+      "en": {
+        "title": "Riboseek: accelerating remote homology search for RNA structure prediction",
+        "summary": "How overlapping di-mers and iterative search help Riboseek generate nucleotide MSAs faster, and what its benchmarks reveal about speed, sensitivity, and alignment quality.",
+        "readingMinutes": 14
+      }
+    },
+    "toc": {
+      "zh": [
+        {
+          "id": "rna-结构预测的瓶颈常常发生在模型之前",
+          "title": "RNA 结构预测的瓶颈，常常发生在模型之前",
+          "level": 2
+        },
+        {
+          "id": "riboseek-的核心用二联体保留局部上下文",
+          "title": "Riboseek 的核心：用二联体保留局部上下文",
+          "level": 2
+        },
+        {
+          "id": "如何把查询序列变成可搜索的-profile",
+          "title": "如何把查询序列变成可搜索的 profile？",
+          "level": 3
+        },
+        {
+          "id": "riboseek-如何在数据库中搜索",
+          "title": "Riboseek 如何在数据库中搜索？",
+          "level": 3
+        },
+        {
+          "id": "搜索有多灵敏生成的比对有多可靠",
+          "title": "搜索有多灵敏，生成的比对有多可靠？",
+          "level": 2
+        },
+        {
+          "id": "1-远缘同源检出能力与搜索速度",
+          "title": "1. 远缘同源检出能力与搜索速度",
+          "level": 3
+        },
+        {
+          "id": "2-msa-能否保留二级结构信号",
+          "title": "2. MSA 能否保留二级结构信号？",
+          "level": 3
+        },
+        {
+          "id": "173-万份预计算-rna-msa",
+          "title": "173 万份预计算 RNA MSA",
+          "level": 2
+        },
+        {
+          "id": "如何看待-riboseek-的贡献与局限",
+          "title": "如何看待 Riboseek 的贡献与局限？",
+          "level": 2
+        }
+      ],
+      "en": [
+        {
+          "id": "the-bottleneck-often-comes-before-model-inference",
+          "title": "The bottleneck often comes before model inference",
+          "level": 2
+        },
+        {
+          "id": "riboseeks-core-preserving-local-context-with-di-mers",
+          "title": "Riboseek's core: preserving local context with di-mers",
+          "level": 2
+        },
+        {
+          "id": "how-does-a-query-become-a-searchable-profile",
+          "title": "How does a query become a searchable profile?",
+          "level": 3
+        },
+        {
+          "id": "how-does-riboseek-search-a-database",
+          "title": "How does Riboseek search a database?",
+          "level": 3
+        },
+        {
+          "id": "how-sensitive-is-the-search-and-how-reliable-are-the-alignments",
+          "title": "How sensitive is the search, and how reliable are the alignments?",
+          "level": 2
+        },
+        {
+          "id": "1-remote-homology-detection-and-search-speed",
+          "title": "1. Remote-homology detection and search speed",
+          "level": 3
+        },
+        {
+          "id": "2-do-the-msas-preserve-secondary-structure-signals",
+          "title": "2. Do the MSAs preserve secondary-structure signals?",
+          "level": 3
+        },
+        {
+          "id": "173-million-precomputed-rna-msas",
+          "title": "1.73 million precomputed RNA MSAs",
+          "level": 2
+        },
+        {
+          "id": "strengths-and-limitations",
+          "title": "Strengths and limitations",
+          "level": 2
+        }
+      ]
+    }
   }
 ] satisfies ArticleRecord[];
 export const papers = [
+  {
+    "slug": "riboseek",
+    "originalTitle": "Fast remote nucleotide sequence alignment with Riboseek",
+    "authors": [
+      "Sukhwan Park",
+      "Kieran Didi",
+      "Andrew Favor",
+      "Anton Bushuiev",
+      "Soohyun Kim",
+      "Milot Mirdita",
+      "Martin Steinegger"
+    ],
+    "year": 2026,
+    "venue": "bioRxiv",
+    "doi": "10.64898/2026.07.31.741718",
+    "url": "https://www.biorxiv.org/content/10.64898/2026.07.31.741718v1.full",
+    "arxiv": null,
+    "topics": [
+      "nucleic-acids",
+      "research-methods"
+    ],
+    "articles": [
+      "riboseek-fast-nucleotide-alignment"
+    ],
+    "demo": false,
+    "summaries": {
+      "zh": "Riboseek 用重叠二联体、快速预筛选和迭代 profile search 加速 RNA 与 DNA 的远缘同源搜索，并为 RNA 结构预测生成更深的多序列比对。",
+      "en": "Riboseek accelerates remote homology search for RNA and DNA with overlapping di-mers, fast prefiltering, and iterative profile search, generating deeper MSAs for RNA structure prediction."
+    }
+  },
   {
     "slug": "alphafold-3",
     "originalTitle": "Accurate structure prediction of biomolecular interactions with AlphaFold 3",
@@ -284,5 +436,12 @@ export const topics = [
     "en": "Research methods",
     "descriptionZh": "严谨阅读、评估与复现。",
     "descriptionEn": "Rigorous reading, evaluation, and reproduction."
+  },
+  {
+    "slug": "nucleic-acids",
+    "zh": "核酸",
+    "en": "Nucleic acids",
+    "descriptionZh": "DNA、RNA、序列搜索与结构信息。",
+    "descriptionEn": "DNA, RNA, sequence search, and structural information."
   }
 ] satisfies TopicRecord[];

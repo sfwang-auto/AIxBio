@@ -180,6 +180,9 @@ h1 em { color: var(--primary); font-weight: 400; }
 .prose p, .prose ul, .prose ol { margin: 1.1em 0; }
 .prose strong { color: var(--foreground); }
 .prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.prose .article-figure { margin: 2.2em 0; text-align: center; }
+.prose .article-figure img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.prose .article-figure p:last-child { margin-top: .75em; color: var(--muted-foreground); font: 13px/1.5 ui-sans-serif, system-ui, sans-serif; }
 .prose blockquote { margin: 0 0 2em; padding: 20px 24px; background: var(--secondary); border-left: 3px solid var(--primary); font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.65; }
 .prose pre { overflow-x: auto; margin: 1.7em 0; padding: 22px; background: #17201e; color: #dfe8e2; border-radius: 2px; font: 13px/1.65 ui-monospace, SFMono-Regular, monospace; }
 .prose code:not(pre code) { padding: 2px 5px; background: var(--muted); font: 13px ui-monospace, monospace; }

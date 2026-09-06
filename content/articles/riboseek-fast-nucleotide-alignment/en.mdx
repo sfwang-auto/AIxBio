@@ -1,0 +1,145 @@
+> **Paper brief**: In this bioRxiv preprint, Park et al. introduce Riboseek, a remote homology search and alignment tool for RNA and DNA. It combines overlapping di-mer encoding with a staged search pipeline to retrieve homologs from large databases and generate multiple sequence alignments (MSAs) for RNA structure prediction. The central question is how well it balances speed, sensitivity, and alignment quality.[^paper]
+
+## The bottleneck often comes before model inference
+
+AlphaFold 3 and Protenix-v2 can predict biomolecular structures that include RNA, but their performance also depends on the information supplied. Alongside the query sequence, an MSA can provide covariation signals associated with shared structural constraints. Obtaining that information often requires searching for remote homologs in large databases such as RNAcentral and NT—a step that can take longer than model inference itself.
+
+Existing tools offer different tradeoffs:
+
+- BLASTN is fast, but its reliance on local seed matches can miss distant homologs with low sequence similarity.
+- nhmmer uses profile hidden Markov models (profile HMMs) to improve sensitivity, at greater computational cost.
+- Infernal uses covariance models to incorporate RNA secondary structure and sequence covariation, adding further cost.
+- rMSA combines multiple search methods with structure-aware filtering to produce high-quality alignments, but searches of large databases can take days.
+
+Here, “sensitivity” means homology-detection sensitivity: the ability to recover remote homologs when they are actually present in the database.
+
+## Riboseek's core: preserving local context with di-mers
+
+Conventional nucleotide aligners typically encode individual bases. Riboseek instead encodes each pair of adjacent nucleotides as a di-mer.
+
+In addition to 16 canonical di-mers, Riboseek uses eight wildcard di-mers that allow one position to remain unspecified. These handle sequence ends and ambiguous or noncanonical nucleotides. Uracil and thymine use the same mapping, allowing this representation to work for both RNA and DNA.
+
+<div className="article-figure">
+
+![Riboseek di-mer encoding](../../../public/images/riboseek/fig1.png)
+
+*Riboseek encodes the query as overlapping di-mers.*
+
+</div>
+
+### How does a query become a searchable profile?
+
+Rfam contains RNA families and their sequence alignments. The authors use these curated alignments to count di-mer pairs occurring in the same alignment columns, then compare their observed frequencies with background expectations to calculate log-odds substitution scores. Pairs that occur more often than expected receive higher scores; those that occur less often receive lower scores.
+
+During a search, Riboseek encodes the query as a series of di-mers with a stride of one nucleotide. The substitution matrix then scores each query di-mer against the possible target di-mers. Arranged along the query, these scores form a position-specific scoring matrix (PSSM), or query profile. Both the prefilter and subsequent Smith–Waterman–Gotoh alignment use this profile for scoring.
+
+Target sequences may have the same orientation as the query or be reverse complements, so Riboseek builds forward and reverse-complement query profiles and searches the target database with each. To construct the reverse-complement profile, Riboseek scores each target di-mer as its reverse complement; for example, AC is scored as GU in RNA and GT in DNA. In later iterations, hits from the previous round are assembled into a query-centered MSA and used to update the profile, allowing the next search round to use position-specific information from the homologs already found.
+
+<div className="article-figure">
+
+![Di-mer substitution matrix and query profile construction](../../../public/images/riboseek/fig2.png)
+
+*The di-mer substitution matrix supplies scores at each query position to form a searchable profile.*
+
+</div>
+
+To limit data leakage, the authors used the training set to estimate the di-mer substitution matrix, the validation set to optimize search parameters, and the test set to compare performance. They started from seed alignments for 4,170 Rfam 14.10 families, reduced redundancy at an 80% sequence-identity threshold, and split the families by Rfam clan so that no clan appeared in more than one set. In the final split, 143 families were used for parameter optimization and 155 for independent testing.
+
+### How does Riboseek search a database?
+
+Once the profile is built, Riboseek selects and refines results in four stages:
+
+1. **Prefiltering**: a k-mer prefilter or GPU-accelerated ungapped prefilter quickly identifies candidates that share local features with the query profile, reducing the number of sequences requiring detailed alignment.
+2. **Candidate alignment**: Smith–Waterman–Gotoh local alignment evaluates candidates using affine gap penalties, which score gap opening and extension separately and allow insertions and deletions within local matches.
+3. **Iterative search**: hits are organized into a query-centered MSA and used to update the profile for the next round, improving the recovery of remote homologs.
+4. **Structure-aware realignment (optional)**: for RNA, the MSA and an RNAfold-predicted secondary structure can be used to build a covariance model. Infernal's CYK algorithm then realigns the hits with base-pairing constraints.
+
+<div className="article-figure">
+
+![Riboseek prefiltering, local alignment, iterative search, and structure-aware realignment workflow](../../../public/images/riboseek/fig3.png)
+
+*The Riboseek search pipeline, with optional structure-aware realignment.*
+
+</div>
+
+## How sensitive is the search, and how reliable are the alignments?
+
+### 1. Remote-homology detection and search speed
+
+The authors selected 71 Rfam test families with more than 20 members and used the longest sequence in each family as the query. Same-family sequences were treated as true positives; sequences from different clans and controls generated by randomly shuffling the bases in real sequences were treated as false positives; sequences from other families in the same clan were excluded from the evaluation. The target database contained 96,701 sequences. Random pseudogenomic segments 100–1,000 nt long were added to both ends of each target to simulate homologous regions embedded in longer genomic sequences.
+
+The main metric was ROC1-AUC: the fraction of all true positives ranked before the first false positive. The horizontal axis shows the ROC1-AUC threshold, and the vertical axis shows the fraction of queries that reach it. Colors and symbols distinguish the tools, while marker styles indicate the number of search rounds.
+
+<div className="article-figure">
+
+![ROC1-AUC distributions for different tools and search rounds on the Rfam benchmark](../../../public/images/riboseek/fig4.png)
+
+*ROC1-AUC distributions for different tools and search rounds on the Rfam benchmark. For a given tool, curves closer to the upper right indicate stronger overall homology recovery.*
+
+</div>
+
+In a single search round, Infernal had the highest sensitivity, followed by Riboseek, which outperformed nhmmer, Smith–Waterman, and BLASTN. Sensitivity increased as Riboseek, Infernal, and nhmmer updated their profiles over successive rounds. After two profile updates, Riboseek outperformed nhmmer across most thresholds and exceeded single-pass Infernal, but remained below iterative Infernal.
+
+Precision–recall curves address a complementary question: how many false positives accompany the recovery of additional homologs? Riboseek performed better overall than nhmmer, Smith–Waterman, and BLASTN, but its precision fell as recall increased. Infernal generally maintained higher precision at higher recall.
+
+To compare runtime, the authors searched RNAcentral v26 with the same queries. GPU Riboseek completed its first round in under two minutes: 544 times faster than nhmmer and 777 times faster than Infernal, while taking 2.9 times as long as BLASTN. The CPU version used k-mer prefiltering and completed the same search in about 30 minutes, 37 times faster than nhmmer and 53 times faster than Infernal.
+
+<div className="article-figure">
+
+![Rfam precision–recall curves and RNAcentral search runtimes](../../../public/images/riboseek/fig5.png)
+
+*Precision–recall curves show the tradeoff between recovery and false positives; the inset compares RNAcentral search times for the same queries.*
+
+</div>
+
+The DNA benchmark used 150 Dfam families, treating family members as true positives and controls generated by randomly shuffling their bases as false positives. Both ROC1-AUC and precision–recall curves showed stronger remote-homology detection for Riboseek than for BLASTN, nhmmer, and pairwise Smith–Waterman alignment.
+
+<div className="article-figure">
+
+![Dfam DNA benchmark ROC1-AUC distributions and precision–recall curves](../../../public/images/riboseek/fig6.png)
+
+*Homology detection on the Dfam benchmark: ROC1-AUC distributions on the left and precision–recall curves on the right.*
+
+</div>
+
+The statistical significance of search results also depends on E-value calibration. The authors sampled a separate set of 9,857 RNAcentral sequences and generated shuffled sequences as controls without true homology. With well-calibrated E-values, a threshold of $x$ should yield about $x$ random hits per query on average. Riboseek and BLASTN were close to this expectation; nhmmer reported fewer random hits, indicating more conservative E-value estimates.
+
+<div className="article-figure">
+
+![Theoretical E-value thresholds versus mean random hits per query](../../../public/images/riboseek/fig7.png)
+
+*E-value calibration: proximity to the dashed line $y=x$ indicates agreement between reported E-values and observed random-hit counts.*
+
+</div>
+
+### 2. Do the MSAs preserve secondary-structure signals?
+
+Beyond detecting homologs, an MSA must preserve covariation signals related to RNA structure. For the secondary-structure experiment, the authors extracted reference base pairs from the experimental structures of 361 non-redundant RNA chains. Because rMSA failed to generate MSAs for 15 queries within 30 days, the final evaluation covered the remaining 346 queries.
+
+All tools searched RNAcentral v26 and NT. Their MSAs were passed to R-scape and plmc to predict base pairs, and F1 scores were calculated against the experimental references. This design tests the structural information preserved in an MSA, beyond the number of sequences it contains.
+
+<div className="article-figure">
+
+![Base-pair prediction F1 distributions for R-scape and plmc, with MSA generation runtimes](../../../public/images/riboseek/fig8.png)
+
+*Secondary-structure evaluation with R-scape (left) and plmc (right). Curves show the fraction of queries exceeding each F1 threshold; the inset reports MSA generation times.*
+
+</div>
+
+rMSA achieved the highest overall base-pair prediction F1 scores with both methods. CYK-based structure-aware realignment substantially improved Riboseek's scores, bringing them closer to rMSA without surpassing it overall. Adding CYK realignment, however, increased MSA generation time by about 13-fold. The improvement from CYK also shows that alignment choices directly affect downstream analysis.
+
+## 1.73 million precomputed RNA MSAs
+
+The authors downloaded all sequences from RNAcentral Release 25, removed sequences containing gaps or nonstandard nucleotides, and deduplicated the remainder. They then used EternaFold to predict the secondary structure of each sequence, retaining only sequences shorter than 600 nt in which at least 60% of nucleotides were predicted to participate in base pairing. Riboseek generated MSAs for the 1,731,677 RNA sequences that met these criteria.
+
+For comparison, the RNAcentral and Rfam MSA collections released with OpenFold3 cover 126,778 RNA sequences. Measured by the number of RNAs covered, the Riboseek collection is about 13.7 times larger.
+
+## Strengths and limitations
+
+Riboseek's main contribution is an integrated tool that combines di-mer encoding, fast prefiltering, local alignment, and iterative search on CPUs or GPUs, substantially reducing the time required for large-scale nucleotide homology search. The evaluation examines sensitivity, precision–recall behavior, E-value calibration, runtime, and secondary-structure signals. The Rfam data were split by clan so that families from the same clan did not appear in both the training and test sets. The precomputed MSAs also provide a reusable data resource.
+
+Several boundaries matter when interpreting these results. Rfam and Dfam benchmarks rely on curated family labels and shuffled negatives, which cannot fully represent unannotated or ambiguous homology relationships in real databases. Higher recall still brings more false positives, so search thresholds need to reflect the task. Structure-aware realignment improves Riboseek's MSAs substantially, but a gap remains relative to rMSA in the secondary-structure evaluation.
+
+Riboseek's most notable contribution is the efficiency it brings to large-scale search. In practice, search time, hit reliability, and MSA quality must be weighed together.
+
+[^paper]: Park, S. et al. “Fast remote nucleotide sequence alignment with Riboseek.” *bioRxiv*, 2026.07.31.741718v1. DOI: [10.64898/2026.07.31.741718](https://doi.org/10.64898/2026.07.31.741718). This is a preprint that has not yet undergone peer review.

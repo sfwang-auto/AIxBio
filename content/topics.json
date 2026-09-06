@@ -2,5 +2,6 @@
   {"slug":"foundation-models","zh":"基础模型","en":"Foundation models","descriptionZh":"从预训练表征到生成式生物学。","descriptionEn":"From pretrained representations to generative biology."},
   {"slug":"protein-structure","zh":"蛋白质结构","en":"Protein structure","descriptionZh":"结构、相互作用与分子设计。","descriptionEn":"Structure, interaction, and molecular design."},
   {"slug":"single-cell","zh":"单细胞","en":"Single-cell","descriptionZh":"细胞图谱、扰动与多组学建模。","descriptionEn":"Cell atlases, perturbations, and multi-omics modelling."},
-  {"slug":"research-methods","zh":"研究方法","en":"Research methods","descriptionZh":"严谨阅读、评估与复现。","descriptionEn":"Rigorous reading, evaluation, and reproduction."}
+  {"slug":"research-methods","zh":"研究方法","en":"Research methods","descriptionZh":"严谨阅读、评估与复现。","descriptionEn":"Rigorous reading, evaluation, and reproduction."},
+  {"slug":"nucleic-acids","zh":"核酸","en":"Nucleic acids","descriptionZh":"DNA、RNA、序列搜索与结构信息。","descriptionEn":"DNA, RNA, sequence search, and structural information."}
 ]
