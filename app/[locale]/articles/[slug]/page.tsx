@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { PaperCard } from '@/components/content-cards';
-import { articleBySlug, articles, paperBySlug, topicName } from '@/lib/content';
+import { articleBySlug, articles, topicName } from '@/lib/content';
 import { articleBodies } from '@/lib/generated-content';
 import { t } from '@/lib/i18n';
 import { isLocale, locales, siteUrl } from '@/lib/site';
@@ -21,11 +20,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
-  const { locale: rawLocale, slug } = await params; if (!isLocale(rawLocale)) notFound(); const locale: Locale = rawLocale; const article = articleBySlug(slug); if (!article) notFound(); const copy = t(locale); const text = article.translations[locale]; const Body = articleBodies[slug]?.[locale]; if (!Body) notFound(); const related = article.papers.map(paperBySlug).filter(Boolean);
+  const { locale: rawLocale, slug } = await params; if (!isLocale(rawLocale)) notFound(); const locale: Locale = rawLocale; const article = articleBySlug(slug); if (!article) notFound(); const copy = t(locale); const text = article.translations[locale]; const Body = articleBodies[slug]?.[locale]; if (!Body) notFound();
   const jsonLd = { '@context': 'https://schema.org', '@type': 'ScholarlyArticle', headline: text.title, inLanguage: locale === 'zh' ? 'zh-CN' : 'en', mainEntityOfPage: `${siteUrl}/${locale}/articles/${slug}`, publisher: { '@type': 'Organization', name: 'AI × Bio' } };
   return <main className="article-page"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
     <header className="article-hero"><Link className="back-link" href={`/${locale}/articles`}><ArrowLeft /> {copy.backArticles}</Link><div className="article-kicker">{article.topics.map((topic) => <Link key={topic} href={`/${locale}/topics/${topic}`}>{topicName(topic, locale)}</Link>)}</div><h1>{text.title}</h1></header>
     <div className="article-layout"><aside className="toc"><span>{copy.tableContents}</span><nav>{article.toc[locale].map((item) => <a key={item.id} href={`#${item.id}`} className={item.level === 3 ? 'toc-sub' : ''}>{item.title}</a>)}</nav></aside><article className="prose"><Body /></article></div>
-    {related.length > 0 && <section className="related-section"><div className="section-heading"><div><span>↳</span><h2>{copy.relatedPapers}</h2></div></div><div className="paper-grid">{related.map((paper, index) => paper && <PaperCard key={paper.slug} paper={paper} locale={locale} index={index} />)}</div></section>}
   </main>;
 }

@@ -24,7 +24,6 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   }, []);
   const links = [
     [`/${locale}/articles`, copy.nav.articles],
-    [`/${locale}/papers`, copy.nav.papers],
     [`/${locale}/topics/foundation-models`, copy.nav.topics],
     [`/${locale}/about`, copy.nav.about],
   ];
