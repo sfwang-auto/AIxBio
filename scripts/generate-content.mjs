@@ -19,7 +19,6 @@ const siteBasePath = '/AIxBio';
 
 const localeCopy = z.object({
   title: z.string().min(1),
-  readingMinutes: z.number().int().positive(),
 }).strict();
 
 const articleSchema = z.object({
@@ -62,8 +61,8 @@ function normalizeArticleAssetPaths(source) {
 }
 
 function runSelfTest() {
-  localeCopy.parse({ title: 'Without summary', readingMinutes: 1 });
-  const validArticle = { slug: 'test-article', topics: ['test'], papers: [], draft: false, translations: { zh: { title: '测试', readingMinutes: 1 }, en: { title: 'Test', readingMinutes: 1 } } };
+  localeCopy.parse({ title: 'Without summary' });
+  const validArticle = { slug: 'test-article', topics: ['test'], papers: [], draft: false, translations: { zh: { title: '测试' }, en: { title: 'Test' } } };
   const validPaper = { slug: 'test-paper', originalTitle: 'Test paper', authors: ['A. Author'], year: 2026, venue: 'Test', doi: null, url: 'https://example.com/paper', arxiv: null, topics: ['test'], articles: [], summaries: { zh: '摘要', en: 'Summary' } };
   const cases = [
     { label: 'missing English translation', schema: articleSchema, value: { ...validArticle, translations: { zh: validArticle.translations.zh } } },

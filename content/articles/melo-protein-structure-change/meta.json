@@ -5,12 +5,10 @@
   "draft": true,
   "translations": {
     "zh": {
-      "title": "一个分数不够：MELO 如何测量并定位蛋白质结构变化",
-      "readingMinutes": 19
+      "title": "一个分数不够：MELO 如何测量并定位蛋白质结构变化"
     },
     "en": {
-      "title": "One score is not enough: how MELO measures and locates protein structure change",
-      "readingMinutes": 19
+      "title": "One score is not enough: how MELO measures and locates protein structure change"
     }
   }
 }

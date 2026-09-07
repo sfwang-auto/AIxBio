@@ -10,7 +10,6 @@ export function ArticleCard({ article, locale, index }: { article: ArticleRecord
     <article className="article-card">
       <div className="card-number">{String((index ?? 0) + 1).padStart(2, '0')}</div>
       <div>
-        <div className="card-meta"><span>{text.readingMinutes} {copy.minutes}</span></div>
         <h2><Link href={`/${locale}/articles/${article.slug}`}>{text.title}</Link></h2>
         <div className="card-topics">{article.topics.map((topic) => <Link key={topic} href={`/${locale}/topics/${topic}`}>{topicName(topic, locale)}</Link>)}</div>
       </div>

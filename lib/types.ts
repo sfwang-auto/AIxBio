@@ -2,7 +2,6 @@ export type Locale = 'zh' | 'en';
 
 export interface ArticleTranslation {
   title: string;
-  readingMinutes: number;
 }
 
 export interface ArticleRecord {

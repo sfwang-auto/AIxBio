@@ -12,12 +12,10 @@ export const articles = [
     "draft": false,
     "translations": {
       "zh": {
-        "title": "Riboseek：加速核酸远缘同源搜索",
-        "readingMinutes": 14
+        "title": "Riboseek：加速核酸远缘同源搜索"
       },
       "en": {
-        "title": "Riboseek: accelerating remote nucleotide homology search",
-        "readingMinutes": 14
+        "title": "Riboseek: accelerating remote nucleotide homology search"
       }
     },
     "toc": {
