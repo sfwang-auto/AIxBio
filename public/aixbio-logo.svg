@@ -1,17 +1,47 @@
-<svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<svg width="344" height="80" viewBox="0 0 344 80" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">AI × Bio</title>
-  <desc id="desc">AI × Bio logo with a blue geometric mark and serif wordmark.</desc>
+  <desc id="desc">AI × Bio logo combining a neural network with a DNA double helix.</desc>
   <defs>
-    <linearGradient id="mark-blue" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+    <linearGradient id="helix-blue" x1="12" y1="8" x2="52" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C79D8"/>
+      <stop offset="1" stop-color="#2E9EFF"/>
+    </linearGradient>
+    <linearGradient id="helix-teal" x1="48" y1="8" x2="8" y2="64" gradientUnits="userSpaceOnUse">
       <stop stop-color="#68C4FF"/>
-      <stop offset="1" stop-color="#0C79D8"/>
+      <stop offset="1" stop-color="#167C80"/>
     </linearGradient>
   </defs>
-  <g transform="translate(8 12) scale(2)">
-    <path d="M22 19.2727C22 20.779 20.779 22 19.2727 22H14.7273C13.221 22 12 20.779 12 19.2727V12H19.2727C20.779 12 22 13.221 22 14.7273V19.2727Z" fill="url(#mark-blue)"/>
-    <path d="M20 2C21.1046 2 22 2.89543 22 4V7C22 8.10457 21.1046 9 20 9H17C15.8954 9 15 8.10457 15 7V4C15 2.89543 15.8954 2 17 2H20Z" fill="#0C79D8"/>
-    <path d="M7 15C8.10457 15 9 15.8954 9 17V20C9 21.1046 8.10457 22 7 22H4C2.89543 22 2 21.1046 2 20V17C2 15.8954 2.89543 15 4 15H7Z" fill="#0C79D8"/>
-    <path d="M12 12H4.72727C3.22104 12 2 10.779 2 9.27273V4.72727C2 3.22104 3.22104 2 4.72727 2H9.27273C10.779 2 12 3.22104 12 4.72727V12Z" fill="#2E9EFF"/>
+  <g transform="translate(8 8)">
+    <path d="M18 6C54 16 54 48 18 58" stroke="url(#helix-blue)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M46 6C10 16 10 48 46 58" stroke="url(#helix-teal)" stroke-width="4" stroke-linecap="round"/>
+    <g stroke="#2E9EFF" stroke-width="2" stroke-linecap="round" opacity="0.9">
+      <path d="M29 12H35"/>
+      <path d="M23 24H41"/>
+      <path d="M23 36H41"/>
+      <path d="M29 48H35"/>
+    </g>
+    <g fill="#102A43" stroke="#F8FBFC" stroke-width="1.5">
+      <circle cx="18" cy="6" r="4"/>
+      <circle cx="46" cy="6" r="4"/>
+      <circle cx="29" cy="12" r="3"/>
+      <circle cx="35" cy="12" r="3"/>
+      <circle cx="23" cy="24" r="3"/>
+      <circle cx="41" cy="24" r="3"/>
+      <circle cx="23" cy="36" r="3"/>
+      <circle cx="41" cy="36" r="3"/>
+      <circle cx="18" cy="58" r="4"/>
+      <circle cx="46" cy="58" r="4"/>
+    </g>
+    <g stroke="#167C80" stroke-width="2" stroke-linecap="round" opacity="0.8">
+      <path d="M4 16H12L18 20"/>
+      <path d="M60 44H52L46 40"/>
+      <path d="M6 52H12L18 48"/>
+    </g>
+    <g fill="#167C80">
+      <circle cx="4" cy="16" r="3"/>
+      <circle cx="60" cy="44" r="3"/>
+      <circle cx="6" cy="52" r="3"/>
+    </g>
   </g>
-  <text x="76" y="49" fill="#102A43" font-family="Georgia, Times New Roman, serif" font-size="38" letter-spacing="-1.2">AI <tspan fill="#1769AA">×</tspan> Bio</text>
+  <text x="88" y="51" fill="#102A43" font-family="Georgia, Times New Roman, serif" font-size="38" letter-spacing="-1.2">AI <tspan fill="#167C80">×</tspan> Bio</text>
 </svg>
