@@ -30,19 +30,51 @@ if [[ -z "$SLUG" ]]; then
   exit 1
 fi
 
+WECHAT_APP_ID="${WECHAT_APP_ID:-}"
+WECHAT_APP_SECRET="${WECHAT_APP_SECRET:-}"
+WECHAT_AUTHOR="${WECHAT_AUTHOR:-}"
+WECHAT_THUMB_PATH="${WECHAT_THUMB_PATH:-}"
+LOCAL_CONFIG="$PROJECT_ROOT/.env.wechat.local"
+
+if [[ -f "$LOCAL_CONFIG" ]]; then
+  while IFS='=' read -r key value || [[ -n "$key" ]]; do
+    key="${key#${key%%[![:space:]]*}}"
+    key="${key%${key##*[![:space:]]}}"
+    value="${value%$'\r'}"
+    value="${value#${value%%[![:space:]]*}}"
+    value="${value%${value##*[![:space:]]}}"
+    value="${value#\"}"
+    value="${value%\"}"
+    value="${value#\'}"
+    value="${value%\'}"
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    case "$key" in
+      WECHAT_APP_ID) [[ -z "$WECHAT_APP_ID" ]] && WECHAT_APP_ID="$value" ;;
+      WECHAT_APP_SECRET) [[ -z "$WECHAT_APP_SECRET" ]] && WECHAT_APP_SECRET="$value" ;;
+      WECHAT_AUTHOR) [[ -z "$WECHAT_AUTHOR" ]] && WECHAT_AUTHOR="$value" ;;
+      WECHAT_THUMB_PATH) [[ -z "$WECHAT_THUMB_PATH" ]] && WECHAT_THUMB_PATH="$value" ;;
+    esac
+  done < "$LOCAL_CONFIG"
+  echo "已读取本地微信配置：$LOCAL_CONFIG"
+fi
+
 PUBLIC_IP="$(curl -fsS --max-time 10 https://api.ipify.org)"
 echo "当前公网 IP：$PUBLIC_IP"
 echo "请确认这个 IP 已加入微信公众号 IP 白名单。"
 echo
 
-read -r -p "微信公众号 AppID: " WECHAT_APP_ID
+if [[ -z "$WECHAT_APP_ID" ]]; then
+  read -r -p "微信公众号 AppID: " WECHAT_APP_ID
+fi
 if [[ -z "$WECHAT_APP_ID" ]]; then
   echo "AppID 不能为空。" >&2
   exit 1
 fi
 
-read -r -s -p "微信公众号 AppSecret（输入时不会显示）: " WECHAT_APP_SECRET
-printf '\n'
+if [[ -z "$WECHAT_APP_SECRET" ]]; then
+  read -r -s -p "微信公众号 AppSecret（输入时不会显示）: " WECHAT_APP_SECRET
+  printf '\n'
+fi
 if [[ -z "$WECHAT_APP_SECRET" ]]; then
   echo "AppSecret 不能为空。" >&2
   exit 1

@@ -31,6 +31,15 @@ npm run wechat:draft:local -- riboseek-fast-nucleotide-alignment
 
 脚本会显示当前公网 IP，并在终端中隐藏读取 AppSecret。AppSecret 不会写入文件或提交到 Git。家庭网络公网 IP 变化后，需要先把新 IP 加入微信公众号白名单。
 
+如果不想每次输入 AppID 和 AppSecret，可以在项目根目录创建本地文件 `.env.wechat.local`：
+
+```dotenv
+WECHAT_APP_ID=wxxxxxxxxxxxxxxxx
+WECHAT_APP_SECRET=你的AppSecret
+```
+
+该文件已被 `.gitignore` 忽略，不会提交到 GitHub。创建后直接运行上面的命令即可；脚本仍会优先使用当前终端环境变量，便于临时覆盖本地配置。
+
 也可以在 GitHub 的 `Actions → Create WeChat draft → Run workflow` 中手动输入文章 slug，重新创建指定文章的草稿。
 
 草稿转换会：
