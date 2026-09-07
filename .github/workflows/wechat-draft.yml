@@ -1,0 +1,58 @@
+name: Create WeChat draft
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/articles/**/zh.mdx'
+      - 'content/articles/**/meta.json'
+      - 'scripts/wechat-draft.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Article slug to create as a draft
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  create-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create WeChat drafts for changed articles
+        env:
+          WECHAT_APP_ID: ${{ secrets.WECHAT_APP_ID }}
+          WECHAT_APP_SECRET: ${{ secrets.WECHAT_APP_SECRET }}
+          WECHAT_AUTHOR: ${{ secrets.WECHAT_AUTHOR }}
+          WECHAT_THUMB_PATH: ${{ secrets.WECHAT_THUMB_PATH }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            node scripts/wechat-draft.mjs --slug "${{ inputs.slug }}"
+            exit 0
+          fi
+
+          slugs="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | awk -F/ '/^content\/articles\/[^/]+\/(zh\.mdx|meta\.json)$/ { print $3 }' | sort -u)"
+          if [ -z "$slugs" ]; then
+            echo "No Chinese article changed."
+            exit 0
+          fi
+
+          for slug in $slugs; do
+            node scripts/wechat-draft.mjs --slug "$slug"
+          done
