@@ -6,6 +6,7 @@ import { Dna, Menu, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { t } from '@/lib/i18n';
 import { alternatePath } from '@/lib/site';
+import { topics } from '@/lib/generated-data';
 import type { Locale } from '@/lib/types';
 import { SearchPalette } from './search-palette';
 
@@ -24,7 +25,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   }, []);
   const links = [
     [`/${locale}/articles`, copy.nav.articles],
-    [`/${locale}/topics/foundation-models`, copy.nav.topics],
+    [topics[0] ? `/${locale}/topics/${topics[0].slug}` : `/${locale}/articles`, copy.nav.topics],
   ];
   return (
     <>
