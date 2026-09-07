@@ -1,33 +1,10 @@
-<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="favicon-blue" x1="12" y1="8" x2="52" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0C79D8"/>
-      <stop offset="1" stop-color="#2E9EFF"/>
-    </linearGradient>
-    <linearGradient id="favicon-teal" x1="48" y1="8" x2="8" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#68C4FF"/>
-      <stop offset="1" stop-color="#167C80"/>
-    </linearGradient>
-  </defs>
-  <rect width="72" height="72" rx="16" fill="#F8FBFC"/>
-  <path d="M26 14C62 24 62 48 26 58" stroke="url(#favicon-blue)" stroke-width="4" stroke-linecap="round"/>
-  <path d="M46 14C10 24 10 48 46 58" stroke="url(#favicon-teal)" stroke-width="4" stroke-linecap="round"/>
-  <g stroke="#2E9EFF" stroke-width="2" stroke-linecap="round">
-    <path d="M33 20H39"/>
-    <path d="M27 30H45"/>
-    <path d="M27 40H45"/>
-    <path d="M33 50H39"/>
-  </g>
-  <g fill="#102A43" stroke="#F8FBFC" stroke-width="1.5">
-    <circle cx="26" cy="14" r="4"/>
-    <circle cx="46" cy="14" r="4"/>
-    <circle cx="33" cy="20" r="3"/>
-    <circle cx="39" cy="20" r="3"/>
-    <circle cx="27" cy="30" r="3"/>
-    <circle cx="45" cy="30" r="3"/>
-    <circle cx="27" cy="40" r="3"/>
-    <circle cx="45" cy="40" r="3"/>
-    <circle cx="26" cy="58" r="4"/>
-    <circle cx="46" cy="58" r="4"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
+<title>AI × Bio</title>
+<rect width="96" height="96" rx="24" fill="#F3F8F5"/>
+<g stroke-linecap="round" stroke-linejoin="round">
+<path d="m24 24 48 48M24 24v24h24v24h24" stroke="#142F3B" stroke-width="4"/>
+<path d="M72 24C48 24 63 48 48 48S48 72 24 72" stroke="#15887E" stroke-width="6"/>
+<path d="M72 24C72 48 48 33 48 48S24 48 24 72" stroke="#66B8A5" stroke-width="4"/>
+<path d="m60 29 7 7M29 60l7 7" stroke="#15887E" stroke-width="2.5"/>
+<g fill="#142F3B"><circle cx="24" cy="24" r="5"/><circle cx="24" cy="48" r="4"/><circle cx="48" cy="72" r="4"/><circle cx="72" cy="72" r="5"/></g>
+</g></svg>
