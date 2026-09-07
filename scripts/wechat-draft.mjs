@@ -1,5 +1,5 @@
 import matter from 'gray-matter';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
@@ -126,6 +126,25 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
 }
 
+async function resolveThumbPath(meta, slug, articleRoot) {
+  if (process.env.WECHAT_THUMB_PATH) return path.resolve(root, process.env.WECHAT_THUMB_PATH);
+  const candidatePaths = [
+    meta.cover ? path.resolve(root, meta.cover) : '',
+    path.join(root, 'public/images', slug, 'cover.png'),
+    path.join(articleRoot, 'cover.png'),
+  ];
+  for (const candidatePath of candidatePaths) {
+    if (!candidatePath) continue;
+    try {
+      await access(candidatePath);
+      return candidatePath;
+    } catch {
+      // Try the next article-specific cover location.
+    }
+  }
+  return defaultThumbPath;
+}
+
 async function wechatJson(url, options = {}) {
   const response = await fetch(url, options);
   const payload = await response.json();
@@ -215,7 +234,7 @@ async function main() {
   const content = await markdownToHtml(htmlSource);
   if (content.length > 20000) console.warn(`Warning: WeChat content is ${content.length} characters; check the account's article length limit.`);
 
-  const thumbPath = path.resolve(root, process.env.WECHAT_THUMB_PATH || defaultThumbPath);
+  const thumbPath = await resolveThumbPath(meta, slug, articleRoot);
   const thumbMediaId = dryRun ? 'dry-run-thumb-media-id' : await uploadThumb(accessToken, thumbPath);
   const article = {
     article_type: 'news',

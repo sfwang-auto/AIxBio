@@ -7,6 +7,7 @@ export const articles = [
       "nucleic-acids"
     ],
     "draft": false,
+    "cover": "public/images/riboseek/cover.jpg",
     "translations": {
       "zh": {
         "title": "Riboseek：加速核酸远缘同源搜索"

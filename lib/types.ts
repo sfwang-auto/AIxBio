@@ -8,6 +8,7 @@ export interface ArticleRecord {
   slug: string;
   topics: string[];
   draft: boolean;
+  cover?: string;
   translations: Record<Locale, ArticleTranslation>;
   toc: Record<Locale, { id: string; title: string; level: number }[]>;
 }

@@ -9,7 +9,7 @@
 - `WECHAT_APP_ID`：公众号开发者 ID（AppID）
 - `WECHAT_APP_SECRET`：公众号开发者密码（AppSecret）
 - `WECHAT_AUTHOR`：可选，文章作者，默认是 `AI × Bio`
-- `WECHAT_THUMB_PATH`：可选，封面图片相对于仓库根目录的路径，默认是 `public/og.png`
+- `WECHAT_THUMB_PATH`：可选，封面图片相对于仓库根目录的路径；未设置时优先使用文章 `meta.json` 的 `cover`，然后尝试 `public/images/<slug>/cover.png` 和 `content/articles/<slug>/cover.png`，找不到时回退到 `public/og.png`
 
 不要把 AppSecret 写入代码、文章或提交记录。若公众号启用了 IP 白名单，还需要把 GitHub Actions 的出口 IP 纳入公众号后台允许列表，或按公众号后台要求配置网络访问方式。
 

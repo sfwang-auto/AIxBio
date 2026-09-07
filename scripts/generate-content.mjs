@@ -24,6 +24,7 @@ const articleSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   topics: z.array(z.string()).min(1),
   draft: z.boolean(),
+  cover: z.string().min(1).optional(),
   translations: z.object({ zh: localeCopy, en: localeCopy }).strict(),
 }).strict();
 
