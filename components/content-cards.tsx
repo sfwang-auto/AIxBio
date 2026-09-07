@@ -8,12 +8,13 @@ export function ArticleCard({ article, locale, index }: { article: ArticleRecord
   const copy = t(locale); const text = article.translations[locale];
   return (
     <article className="article-card">
-      <div className="card-number">{String((index ?? 0) + 1).padStart(2, '0')}</div>
+      <div className="card-number"><span>NOTE</span>{String((index ?? 0) + 1).padStart(2, '0')}</div>
       <div>
-        <h2><Link href={`/${locale}/articles/${article.slug}`}>{text.title}</Link></h2>
         <div className="card-topics">{article.topics.map((topic) => <Link key={topic} href={`/${locale}/topics/${topic}`}>{topicName(topic, locale)}</Link>)}</div>
+        <h2><Link href={`/${locale}/articles/${article.slug}`}>{text.title}</Link></h2>
+        <span className="card-type">{locale === 'zh' ? '论文解读 · 约 8 分钟阅读' : 'Paper reading · 8 min read'}</span>
       </div>
-      <Link className="round-link" href={`/${locale}/articles/${article.slug}`} aria-label={`${copy.read}: ${text.title}`}><ArrowUpRight /></Link>
+      <Link className="round-link" href={`/${locale}/articles/${article.slug}`} aria-label={`${copy.read}: ${text.title}`}><ArrowUpRight aria-hidden="true" /></Link>
     </article>
   );
 }

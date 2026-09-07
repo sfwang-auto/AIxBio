@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArticleCard } from '@/components/content-cards';
 import { articles, topicBySlug, topics } from '@/lib/content';
@@ -20,6 +21,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function TopicPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params; if (!isLocale(locale)) notFound(); const topic = topicBySlug(slug); if (!topic) notFound(); const copy = t(locale); const topicArticles = articles.filter((article) => article.topics.includes(slug));
-  return <main className="listing-page"><header className="page-intro"><span>03 — {copy.topic}</span><h1>{topic[locale]}</h1></header>{topicArticles.length > 0 && <section className="topic-results"><h2>{copy.nav.articles}</h2><div className="article-list">{topicArticles.map((article, index) => <ArticleCard key={article.slug} article={article} locale={locale} index={index} />)}</div></section>}</main>;
+  return <main className="listing-page"><header className="page-intro"><span>03 — {copy.topic}</span><h1>{topic[locale]}</h1><p>{copy.topicDescription}</p></header>{topicArticles.length > 0 && <section className="topic-results"><div className="section-heading"><h2>{copy.nav.articles}</h2><span>{String(topicArticles.length).padStart(2, '0')}</span></div><div className="article-list">{topicArticles.map((article, index) => <ArticleCard key={article.slug} article={article} locale={locale} index={index} />)}</div></section>}</main>;
 }
-import type { Metadata } from 'next';
