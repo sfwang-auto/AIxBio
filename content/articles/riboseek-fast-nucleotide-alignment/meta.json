@@ -1,20 +1,15 @@
 {
   "slug": "riboseek-fast-nucleotide-alignment",
-  "date": "2026-07-31",
-  "topics": ["nucleic-acids", "research-methods"],
+  "topics": ["nucleic-acids"],
   "papers": ["riboseek"],
   "draft": false,
-  "featured": false,
-  "demo": false,
   "translations": {
     "zh": {
-      "title": "Riboseek：为 RNA 结构预测加速远缘同源搜索",
-      "summary": "从重叠二联体到迭代搜索，解析 Riboseek 如何加速核酸 MSA 生成，以及搜索速度、同源检出能力与比对质量之间的权衡。",
+      "title": "Riboseek：加速核酸远缘同源搜索",
       "readingMinutes": 14
     },
     "en": {
-      "title": "Riboseek: accelerating remote homology search for RNA structure prediction",
-      "summary": "How overlapping di-mers and iterative search help Riboseek generate nucleotide MSAs faster, and what its benchmarks reveal about speed, sensitivity, and alignment quality.",
+      "title": "Riboseek: accelerating remote nucleotide homology search",
       "readingMinutes": 14
     }
   }

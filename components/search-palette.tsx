@@ -18,7 +18,7 @@ export function SearchPalette({ locale, open, onOpenChange }: { locale: Locale; 
         <CommandEmpty>{copy.noResults}</CommandEmpty>
         <CommandGroup heading={copy.nav.articles}>
           {articles.map((article) => (
-            <CommandItem key={article.slug} value={`${article.translations[locale].title} ${article.translations[locale].summary}`} onSelect={() => go(`/${locale}/articles/${article.slug}`)}>
+            <CommandItem key={article.slug} value={article.translations[locale].title} onSelect={() => go(`/${locale}/articles/${article.slug}`)}>
               <FileText /><span>{article.translations[locale].title}</span>
             </CommandItem>
           ))}

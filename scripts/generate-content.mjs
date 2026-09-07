@@ -19,18 +19,14 @@ const siteBasePath = '/AIxBio';
 
 const localeCopy = z.object({
   title: z.string().min(1),
-  summary: z.string().min(1),
   readingMinutes: z.number().int().positive(),
 }).strict();
 
 const articleSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)), 'Invalid calendar date'),
   topics: z.array(z.string()).min(1),
   papers: z.array(z.string()),
   draft: z.boolean(),
-  featured: z.boolean(),
-  demo: z.boolean(),
   translations: z.object({ zh: localeCopy, en: localeCopy }).strict(),
 }).strict();
 
@@ -45,7 +41,6 @@ const paperSchema = z.object({
   arxiv: z.string().min(1).nullable(),
   topics: z.array(z.string()).min(1),
   articles: z.array(z.string()),
-  demo: z.boolean(),
   summaries: z.object({ zh: z.string().min(1), en: z.string().min(1) }).strict(),
 }).strict();
 
@@ -67,11 +62,11 @@ function normalizeArticleAssetPaths(source) {
 }
 
 function runSelfTest() {
-  const validArticle = { slug: 'test-article', date: '2026-08-30', topics: ['test'], papers: [], draft: false, featured: false, demo: true, translations: { zh: { title: '测试', summary: '摘要', readingMinutes: 1 }, en: { title: 'Test', summary: 'Summary', readingMinutes: 1 } } };
-  const validPaper = { slug: 'test-paper', originalTitle: 'Test paper', authors: ['A. Author'], year: 2026, venue: 'Test', doi: null, url: 'https://example.com/paper', arxiv: null, topics: ['test'], articles: [], demo: true, summaries: { zh: '摘要', en: 'Summary' } };
+  localeCopy.parse({ title: 'Without summary', readingMinutes: 1 });
+  const validArticle = { slug: 'test-article', topics: ['test'], papers: [], draft: false, translations: { zh: { title: '测试', readingMinutes: 1 }, en: { title: 'Test', readingMinutes: 1 } } };
+  const validPaper = { slug: 'test-paper', originalTitle: 'Test paper', authors: ['A. Author'], year: 2026, venue: 'Test', doi: null, url: 'https://example.com/paper', arxiv: null, topics: ['test'], articles: [], summaries: { zh: '摘要', en: 'Summary' } };
   const cases = [
     { label: 'missing English translation', schema: articleSchema, value: { ...validArticle, translations: { zh: validArticle.translations.zh } } },
-    { label: 'invalid article date', schema: articleSchema, value: { ...validArticle, date: '2026-13-50' } },
     { label: 'non-HTTPS paper URL', schema: paperSchema, value: { ...validPaper, url: 'http://example.com/paper' } },
   ];
   for (const testCase of cases) if (testCase.schema.safeParse(testCase.value).success) throw new Error(`Self-test failed: ${testCase.label} was accepted`);
@@ -80,7 +75,7 @@ function runSelfTest() {
   if (!duplicateRejected) throw new Error('Self-test failed: duplicate slug was accepted');
   const normalizedImage = normalizeArticleAssetPaths('![Alt](../../../public/images/example.png)');
   if (normalizedImage !== '![Alt](/AIxBio/images/example.png)') throw new Error('Self-test failed: local article image path was not normalized');
-  console.log('Content contract self-test passed: bilingual pairing, dates, HTTPS URLs, and duplicate slugs are enforced.');
+  console.log('Content contract self-test passed: bilingual pairing, HTTPS URLs, and duplicate slugs are enforced.');
 }
 
 async function json(file) {
@@ -91,6 +86,7 @@ async function main() {
   const topicData = topicSchema.parse(await json(path.join(root, 'content/topics.json')));
   const topicSlugs = new Set(topicData.map((topic) => topic.slug));
   const articleFolders = (await readdir(articlesRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+  const allArticleData = [];
   const articleData = [];
 
   await rm(generatedArticles, { recursive: true, force: true });
@@ -117,6 +113,7 @@ async function main() {
       });
       await writeFile(path.join(generatedArticles, `${article.slug}.${locale}.tsx`), `// @ts-nocheck\n${String(compiled)}`);
     }
+    allArticleData.push(article);
     if (!article.draft) articleData.push(article);
   }
 
@@ -129,10 +126,10 @@ async function main() {
     paperData.push(paper);
   }
 
-  assertUnique(articleData, 'article');
+  assertUnique(allArticleData, 'article');
   assertUnique(paperData, 'paper');
 
-  for (const article of articleData) {
+  for (const article of allArticleData) {
     for (const paperSlug of article.papers) {
       const paper = paperData.find((item) => item.slug === paperSlug);
       if (!paper) throw new Error(`Article "${article.slug}" links to missing paper "${paperSlug}"`);
@@ -141,25 +138,27 @@ async function main() {
   }
   for (const paper of paperData) {
     for (const articleSlug of paper.articles) {
-      const article = articleData.find((item) => item.slug === articleSlug);
+      const article = allArticleData.find((item) => item.slug === articleSlug);
       if (!article) throw new Error(`Paper "${paper.slug}" links to missing article "${articleSlug}"`);
       if (!article.papers.includes(paper.slug)) throw new Error(`Article "${articleSlug}" must link back to paper "${paper.slug}"`);
     }
   }
 
-  articleData.sort((a, b) => b.date.localeCompare(a.date));
-  paperData.sort((a, b) => b.year - a.year || a.originalTitle.localeCompare(b.originalTitle));
+  const publishedArticleSlugs = new Set(articleData.map((article) => article.slug));
+  const publicPaperData = paperData
+    .map((paper) => ({ ...paper, articles: paper.articles.filter((slug) => publishedArticleSlugs.has(slug)) }))
+    .sort((a, b) => b.year - a.year || a.originalTitle.localeCompare(b.originalTitle));
 
   const imports = articleData.flatMap((article, index) => [
     `import Article${index}Zh from './generated/articles/${article.slug}.zh';`,
     `import Article${index}En from './generated/articles/${article.slug}.en';`,
   ]).join('\n');
   const bodyEntries = articleData.map((article, index) => `  ${JSON.stringify(article.slug)}: { zh: Article${index}Zh, en: Article${index}En },`).join('\n');
-  const dataOutput = `/* This file is generated by scripts/generate-content.mjs. */\nimport type { ArticleRecord, PaperRecord, TopicRecord } from './types';\nexport const articles = ${JSON.stringify(articleData, null, 2)} satisfies ArticleRecord[];\nexport const papers = ${JSON.stringify(paperData, null, 2)} satisfies PaperRecord[];\nexport const topics = ${JSON.stringify(topicData, null, 2)} satisfies TopicRecord[];\n`;
+  const dataOutput = `/* This file is generated by scripts/generate-content.mjs. */\nimport type { ArticleRecord, PaperRecord, TopicRecord } from './types';\nexport const articles = ${JSON.stringify(articleData, null, 2)} satisfies ArticleRecord[];\nexport const papers = ${JSON.stringify(publicPaperData, null, 2)} satisfies PaperRecord[];\nexport const topics = ${JSON.stringify(topicData, null, 2)} satisfies TopicRecord[];\n`;
   const contentOutput = `/* This file is generated by scripts/generate-content.mjs. */\nimport type { ComponentType } from 'react';\n${imports}\n\nexport const articleBodies: Record<string, Record<'zh' | 'en', ComponentType<Record<string, unknown>>>> = {\n${bodyEntries}\n};\n`;
   await writeFile(path.join(root, 'lib/generated-data.ts'), dataOutput);
   await writeFile(path.join(root, 'lib/generated-content.ts'), contentOutput);
-  console.log(`Validated ${articleData.length} bilingual articles, ${paperData.length} papers, and ${topicData.length} topics.`);
+  console.log(`Validated ${allArticleData.length} bilingual articles (${articleData.length} published, ${allArticleData.length - articleData.length} draft), ${paperData.length} papers, and ${topicData.length} topics.`);
 }
 
 if (process.argv.includes('--self-test')) runSelfTest();

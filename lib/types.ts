@@ -2,18 +2,14 @@ export type Locale = 'zh' | 'en';
 
 export interface ArticleTranslation {
   title: string;
-  summary: string;
   readingMinutes: number;
 }
 
 export interface ArticleRecord {
   slug: string;
-  date: string;
   topics: string[];
   papers: string[];
   draft: boolean;
-  featured: boolean;
-  demo: boolean;
   translations: Record<Locale, ArticleTranslation>;
   toc: Record<Locale, { id: string; title: string; level: number }[]>;
 }
@@ -29,7 +25,6 @@ export interface PaperRecord {
   arxiv: string | null;
   topics: string[];
   articles: string[];
-  demo: boolean;
   summaries: Record<Locale, string>;
 }
 

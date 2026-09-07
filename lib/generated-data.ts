@@ -2,181 +2,21 @@
 import type { ArticleRecord, PaperRecord, TopicRecord } from './types';
 export const articles = [
   {
-    "slug": "beyond-structure-prediction",
-    "date": "2026-08-20",
-    "topics": [
-      "foundation-models",
-      "protein-structure"
-    ],
-    "papers": [
-      "alphafold-3"
-    ],
-    "draft": false,
-    "featured": true,
-    "demo": true,
-    "translations": {
-      "zh": {
-        "title": "超越结构预测：分子模型究竟学到了什么？",
-        "summary": "从输入表示、生成目标和评估边界出发，拆解新一代分子模型真正捕获的生物学规律。",
-        "readingMinutes": 12
-      },
-      "en": {
-        "title": "Beyond structure prediction: what does a molecular model actually learn?",
-        "summary": "A close reading of representation, generative objectives, and the biological limits of modern molecular models.",
-        "readingMinutes": 12
-      }
-    },
-    "toc": {
-      "zh": [
-        {
-          "id": "从预测问题换一个角度",
-          "title": "从预测问题换一个角度",
-          "level": 2
-        },
-        {
-          "id": "三个阅读问题",
-          "title": "三个阅读问题",
-          "level": 2
-        },
-        {
-          "id": "1-表示里已经写入了什么",
-          "title": "1. 表示里已经写入了什么？",
-          "level": 3
-        },
-        {
-          "id": "2-目标函数奖励了什么",
-          "title": "2. 目标函数奖励了什么？",
-          "level": 3
-        },
-        {
-          "id": "3-失败发生在哪里",
-          "title": "3. 失败发生在哪里？",
-          "level": 3
-        },
-        {
-          "id": "一张可复用的阅读清单",
-          "title": "一张可复用的阅读清单",
-          "level": 2
-        }
-      ],
-      "en": [
-        {
-          "id": "reframing-the-prediction-problem",
-          "title": "Reframing the prediction problem",
-          "level": 2
-        },
-        {
-          "id": "three-questions-for-a-close-reading",
-          "title": "Three questions for a close reading",
-          "level": 2
-        },
-        {
-          "id": "1-what-is-already-encoded-in-the-representation",
-          "title": "1. What is already encoded in the representation?",
-          "level": 3
-        },
-        {
-          "id": "2-what-does-the-objective-reward",
-          "title": "2. What does the objective reward?",
-          "level": 3
-        },
-        {
-          "id": "3-where-does-failure-concentrate",
-          "title": "3. Where does failure concentrate?",
-          "level": 3
-        },
-        {
-          "id": "a-reusable-reading-checklist",
-          "title": "A reusable reading checklist",
-          "level": 2
-        }
-      ]
-    }
-  },
-  {
-    "slug": "how-to-read-ai-bio-paper",
-    "date": "2026-08-12",
-    "topics": [
-      "research-methods",
-      "single-cell"
-    ],
-    "papers": [
-      "scgpt"
-    ],
-    "draft": false,
-    "featured": false,
-    "demo": true,
-    "translations": {
-      "zh": {
-        "title": "如何阅读一篇 AI × Bio 论文",
-        "summary": "一套把机器学习指标还原成生物学问题的五步阅读框架。",
-        "readingMinutes": 8
-      },
-      "en": {
-        "title": "How to read an AI × Bio paper",
-        "summary": "A five-step framework for translating machine-learning metrics back into biological questions.",
-        "readingMinutes": 8
-      }
-    },
-    "toc": {
-      "zh": [
-        {
-          "id": "先找生物学问题",
-          "title": "先找生物学问题",
-          "level": 2
-        },
-        {
-          "id": "再检查数据边界",
-          "title": "再检查数据边界",
-          "level": 2
-        },
-        {
-          "id": "最后才看排行榜",
-          "title": "最后才看排行榜",
-          "level": 2
-        }
-      ],
-      "en": [
-        {
-          "id": "start-with-the-biological-question",
-          "title": "Start with the biological question",
-          "level": 2
-        },
-        {
-          "id": "inspect-the-data-boundary",
-          "title": "Inspect the data boundary",
-          "level": 2
-        },
-        {
-          "id": "read-the-leaderboard-last",
-          "title": "Read the leaderboard last",
-          "level": 2
-        }
-      ]
-    }
-  },
-  {
     "slug": "riboseek-fast-nucleotide-alignment",
-    "date": "2026-07-31",
     "topics": [
-      "nucleic-acids",
-      "research-methods"
+      "nucleic-acids"
     ],
     "papers": [
       "riboseek"
     ],
     "draft": false,
-    "featured": false,
-    "demo": false,
     "translations": {
       "zh": {
-        "title": "Riboseek：为 RNA 结构预测加速远缘同源搜索",
-        "summary": "从重叠二联体到迭代搜索，解析 Riboseek 如何加速核酸 MSA 生成，以及搜索速度、同源检出能力与比对质量之间的权衡。",
+        "title": "Riboseek：加速核酸远缘同源搜索",
         "readingMinutes": 14
       },
       "en": {
-        "title": "Riboseek: accelerating remote homology search for RNA structure prediction",
-        "summary": "How overlapping di-mers and iterative search help Riboseek generate nucleotide MSAs faster, and what its benchmarks reveal about speed, sensitivity, and alignment quality.",
+        "title": "Riboseek: accelerating remote nucleotide homology search",
         "readingMinutes": 14
       }
     },
@@ -297,16 +137,46 @@ export const papers = [
     "url": "https://www.biorxiv.org/content/10.64898/2026.07.31.741718v1.full",
     "arxiv": null,
     "topics": [
-      "nucleic-acids",
-      "research-methods"
+      "nucleic-acids"
     ],
     "articles": [
       "riboseek-fast-nucleotide-alignment"
     ],
-    "demo": false,
     "summaries": {
       "zh": "Riboseek 用重叠二联体、快速预筛选和迭代 profile search 加速 RNA 与 DNA 的远缘同源搜索，并为 RNA 结构预测生成更深的多序列比对。",
       "en": "Riboseek accelerates remote homology search for RNA and DNA with overlapping di-mers, fast prefiltering, and iterative profile search, generating deeper MSAs for RNA structure prediction."
+    }
+  },
+  {
+    "slug": "melo",
+    "originalTitle": "Measuring and locating the changes in protein structure using MELO",
+    "authors": [
+      "Lingyan Zheng",
+      "Yang Liao",
+      "Yintao Zhang",
+      "Mingxuan Liu",
+      "Mingkun Lu",
+      "Tingting Fu",
+      "Shuiyang Shi",
+      "Xiuna Sun",
+      "Chengbin Gu",
+      "Huaicheng Sun",
+      "Minjie Mou",
+      "Haibin Dai",
+      "Feng Zhu"
+    ],
+    "year": 2026,
+    "venue": "Nature Communications",
+    "doi": "10.1038/s41467-025-68110-8",
+    "url": "https://www.nature.com/articles/s41467-025-68110-8",
+    "arxiv": null,
+    "topics": [
+      "protein-structure"
+    ],
+    "articles": [],
+    "summaries": {
+      "zh": "MELO 从残基几何特征和残基间相对距离两个维度测量蛋白质结构变化，并定位二级结构变化与蛋白片段位移。",
+      "en": "MELO measures protein structural change from residue geometry and relative inter-residue distances, while locating secondary-structure variation and protein-segment shifts."
     }
   },
   {
@@ -371,10 +241,7 @@ export const papers = [
       "foundation-models",
       "protein-structure"
     ],
-    "articles": [
-      "beyond-structure-prediction"
-    ],
-    "demo": true,
+    "articles": [],
     "summaries": {
       "zh": "一种统一预测包含蛋白质、核酸、小分子、离子和修饰残基的复合物结构的方法。",
       "en": "A unified approach to predicting structures of complexes containing proteins, nucleic acids, small molecules, ions, and modified residues."
@@ -398,10 +265,7 @@ export const papers = [
       "foundation-models",
       "single-cell"
     ],
-    "articles": [
-      "how-to-read-ai-bio-paper"
-    ],
-    "demo": true,
+    "articles": [],
     "summaries": {
       "zh": "面向单细胞多组学数据的生成式预训练基础模型，并在多种下游任务上进行评估。",
       "en": "A generatively pretrained foundation model for single-cell multi-omics, evaluated across a range of downstream tasks."
@@ -429,13 +293,6 @@ export const topics = [
     "en": "Single-cell",
     "descriptionZh": "细胞图谱、扰动与多组学建模。",
     "descriptionEn": "Cell atlases, perturbations, and multi-omics modelling."
-  },
-  {
-    "slug": "research-methods",
-    "zh": "研究方法",
-    "en": "Research methods",
-    "descriptionZh": "严谨阅读、评估与复现。",
-    "descriptionEn": "Rigorous reading, evaluation, and reproduction."
   },
   {
     "slug": "nucleic-acids",

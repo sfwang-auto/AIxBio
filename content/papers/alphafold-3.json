@@ -8,8 +8,7 @@
   "url": "https://www.nature.com/articles/s41586-024-07487-w",
   "arxiv": null,
   "topics": ["foundation-models", "protein-structure"],
-  "articles": ["beyond-structure-prediction"],
-  "demo": true,
+  "articles": [],
   "summaries": {
     "zh": "一种统一预测包含蛋白质、核酸、小分子、离子和修饰残基的复合物结构的方法。",
     "en": "A unified approach to predicting structures of complexes containing proteins, nucleic acids, small molecules, ions, and modified residues."

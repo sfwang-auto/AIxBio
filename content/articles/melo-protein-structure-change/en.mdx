@@ -1,0 +1,165 @@
+> **Paper at a glance:** Zheng and colleagues introduce MELO in *Nature Communications*: a method that places protein structural change on two complementary axes and traces each signal back to individual amino-acid units (residues) or segment pairs. The interesting question is not merely whether it “beats TM-score,” but what labels, thresholds, and alignment choices make that claim possible.[^paper]
+
+## The real question is not only “how similar?” but “what moved?”
+
+It is tempting to compress the difference between two protein structures into one number. RMSD measures average coordinate deviation after superposition; TM-score normalizes structural similarity for protein length; LDDT compares local distance patterns. Each solves a useful problem, but a global score can smooth over two biologically relevant events: a local secondary-structure transition and a near-rigid displacement between domains or segments.
+
+Consider a pair of scissors: the blades can retain their internal geometry while rotating relative to each other around the hinge. Looking only within domains may understate that motion, while looking only at the global superposition may overstate it. Conversely, a short α-helix can become disordered, affecting only a few dozen residues but still representing a meaningful local change.
+
+That is MELO's starting point. Rather than searching for a universal similarity score, **ME**asuring and **LO**cating structural change becomes two questions:
+
+1. Has the local geometry of corresponding residues changed?
+2. Have the relative positions of residues or structural segments changed?
+
+## Two coordinates: VSS and SPS
+
+The first coordinate, $VSS_{\text{measur}}$, describes variation in secondary structure. Its calculation can be unpacked into four steps.
+
+### How is VSS calculated from two structures?
+
+**Step 1: establish residue correspondence.** MELO selects an alignment method according to sequence identity: Smith–Waterman sequence alignment above 30% and US-align structural alignment at or below 30%. The result is $N$ matched residue pairs between structures A and B.
+
+**Step 2: represent each residue as a ten-dimensional vector.** For the $i$th matched pair, MELO uses DSSP to calculate ten geometric and environmental features separately for the two structures, then forms $\vec v_i^A$ and $\vec v_i^B$. The ten components are listed below:[^dssp-fields]
+
+| Group | Features |
+| --- | --- |
+| Backbone hydrogen bonds | N–H···O; second N–H···O; O···H–N; second O···H–N |
+| Local backbone geometry | KAPPA; PHI; PSI; ALPHA; TCO |
+| Solvent exposure | ACC |
+
+**Step 3: calculate a residue-level difference.** For each matched residue pair, calculate the scaled cosine difference:
+
+$$
+c_i=\frac{1}{2}\left(1-
+\frac{\vec v_i^A\cdot\vec v_i^B}
+{\lVert\vec v_i^A\rVert\,\lVert\vec v_i^B\rVert}
+\right)
+$$
+
+**Step 4: average, then stretch the scale.** MELO first averages over the $N$ aligned residues:
+
+$$
+c_{\text{ave}}=\frac{1}{N}\sum_{i=1}^{N}c_i
+$$
+
+The authors find that $c_{\text{ave}}$ is concentrated between 0 and 0.1 across two million PDB structure pairs. To spread out that narrow region, they apply a nonlinear transformation:
+
+$$
+VSS_{\text{measur}}=1-\left(1-c_{\text{ave}}\right)^9
+$$
+
+This transformation stretches differences near zero while keeping the result between 0 and 1.
+
+### How does SPS measure segment motion?
+
+The second coordinate, $SPS_{\text{measur}}$, captures shifts among protein segments. After residue correspondence is established, MELO compares the distance between every residue pair $i,j$ in structures A and B and normalizes the change by the larger of the two original distances:
+
+The motivation is to separate two types of change: VSS asks whether local residue geometry has changed, whereas SPS uses changes in residue-pair distances to measure relative motion between segments.
+
+$$
+D_{i,j}^{\text{norm}}=
+\frac{\left|d_{i,j}^{A}-d_{i,j}^{B}\right|}
+{\max\left(d_{i,j}^{A},d_{i,j}^{B}\right)}
+$$
+
+Here, $d_{i,j}^{A}$ and $d_{i,j}^{B}$ are the spatial distances between residues $i,j$ in the two structures, and $D_{i,j}^{\text{norm}}$ lies between 0 and 1. MELO averages over all residue pairs to obtain $D_{\text{ave}}^{\text{norm}}$, then applies the same transformation used for VSS:
+
+$$
+SPS_{\text{measur}}=1-\left(1-D_{\text{ave}}^{\text{norm}}\right)^9
+$$
+
+Rather than collapsing the distance matrix completely, $PLOT^{SPS}$ retains every $D_{i,j}^{\text{norm}}$ and reveals which residue segments move relative to one another.
+
+**Usage limitation.** Subsequent calculations use only these $N$ corresponding residue pairs: VSS computes $c_i$ for each matched pair, while SPS computes $D_{i,j}^{\text{norm}}$ between pairs of these corresponding residues. Unmatched residues do not enter the averages. If the structural change is concentrated in insertions, deletions, or other unaligned regions, the metrics may underestimate whole-protein change, so alignment coverage should be considered alongside the scores.
+
+The authors also define a convenient ranking score:
+
+$$
+MELO\text{-}score=\max(VSS_{measur},SPS_{measur})
+$$
+
+Yet the two-dimensional result is more informative than the maximum:
+
+| Region | $VSS_{measur}$ | $SPS_{measur}$ | Structural interpretation |
+|---|---:|---:|---|
+| Q1 | $<0.5$ | $<0.5$ | Neither change threshold is reached |
+| Q2 | $<0.5$ | $\ge 0.5$ | Predominantly segment or domain motion |
+| Q3 | $\ge 0.5$ | $\ge 0.5$ | Secondary-structure change plus segment motion |
+| Q4 | $\ge 0.5$ | $<0.5$ | Predominantly secondary-structure variation |
+
+A maximum cannot distinguish Q2, Q3, and Q4. The coordinates can. That is the practical meaning of “one score is not enough.”
+
+## The 0.5 threshold is not a constant of nature
+
+MELO uses 0.5 as the decision boundary on both axes. The number does not come from a physical law. Following the thresholding logic popularized by TM-score, the authors calibrate posterior distributions on very large sets of structure pairs drawn from SCOP2 and CATH. At the SCOP2 class, fold, superfamily, and family levels, the benchmarks contain approximately 0.308, 0.409, 0.411, and 0.413 billion pairs, respectively. The hierarchy acts as a progression from coarse to subtle structural difference.
+
+Across these benchmarks, MELO reports accuracy above 99.7% at every level, whereas TM-score declines from 99.8% to 93.8%. Restricting the comparison to pairs above 70% sequence identity makes the contrast larger: MELO remains above 99.9%, while TM-score falls from 96.5% to 62.4%, a gap of more than 30 percentage points at the superfamily and family levels.
+
+Those numbers are impressive only when read together with their labels. The target is primarily a structural-classification relationship, not an experimentally measured change in enzymatic activity, affinity, or cellular phenotype. The benchmark strongly supports a narrower statement: **MELO is more consistent with this definition of structural difference, especially for subtle differences among sequence-similar proteins.** It does not establish that every pair crossing 0.5 is functionally consequential.
+
+## Three cases show why both coordinates matter
+
+### OspA: stable internal structure, displaced domains
+
+For an OspA variant involving β-hairpin replacement and shortening, MELO reports $VSS=0.13$ and $SPS=0.63$, placing the pair in Q2. Secondary structure is largely preserved while the relative domain arrangement changes; the study reports that TM-score and LDDT do not flag the event. This is the cleanest illustration that internal resemblance and inter-domain motion are different measurements.
+
+### CRABP II: ligand binding changes both local structure and pocket geometry
+
+Comparing apo and holo cellular retinoic acid-binding protein II (CRABP II) yields $VSS=0.53$ and $SPS=0.58$, a Q3 result. $PLOT^{VSS}$ highlights the second helix and regions near βD and βJ, while $PLOT^{SPS}$ emphasizes displacement involving the second helix and the βE–βF region. The authors connect these patterns to expansion and contraction of the retinoic-acid pocket.
+
+This is where localization earns its keep. A total score says that the structures differ; a spatial map can prioritize residues for mutation, simulation, or experimental follow-up. The map is still evidence of structural difference—not, by itself, a causal mechanism.
+
+### KRAS: alignment choice can change the answer
+
+The comparison between Mg²⁺-free and Mg²⁺-bound KRAS exposes a sensitive step in the pipeline. With Smith–Waterman sequence alignment establishing residue correspondence, MELO obtains roughly $SPS=0.61$ and captures displacement around βB and βC. With US-align structural alignment, some divergent regions are staggered to improve the global superposition, and $SPS$ falls to 0.28.
+
+MELO is therefore not alignment-independent. The authors favor sequence alignment for highly sequence-similar pairs; insertions, deletions, and distant homologues still require judgment about biological correspondence. A tidy decimal score may hide a consequential discrete decision made upstream.
+
+## What does “12,562 discovered changes” actually mean?
+
+Starting from 38,128 single-protein PDB structures, the study forms more than two million pairs with sequence identity above 70%. MELO classifies 12,562 pairs as changed, compared with 1,411 identified by TM-score. In Q2, Q3, and Q4, the two methods disagree for 86.45%, 97.23%, and 91.95% of pairs. The authors release these “structural changes missed by existing methods” and report that MELO processes two million pairs in 109 hours, versus 199 hours for TM-score and 1,044 hours for LDDT in their benchmark.[^data]
+
+This is a valuable **candidate set**, not 12,562 newly validated functional discoveries. The paper notes that 22.8% of these pairs have different functional annotations; equivalently, 77.2% share the same annotation. Shared annotation does not rule out functional differences, but neither does it prove undiscovered biological effects. A defensible use is to narrow the review space, then combine ligand state, experimental conditions, structure quality, molecular dynamics, and wet-lab evidence to rank candidates.
+
+## Four doubts worth keeping
+
+### 1. Structural-classification accuracy is not functional-effect accuracy
+
+SCOP2 and CATH provide scalable labels, not a gold standard for biological effect. If the question is whether a missense variant is pathogenic, MELO can contribute structural evidence but cannot replace stability, binding, expression, or cellular assays.
+
+### 2. A fixed threshold creates a hard boundary
+
+The paper supplies a useful counterexample. For the open-to-closed glucokinase comparison, $SPS$ lies around 0.41–0.48, below 0.5 and therefore in Q1, even though the distribution shifts relative to same-state controls. Likewise, global metrics miss the MEF2B D83V change while the local plot reveals the affected helix. Near the boundary, continuous values and local maps deserve more attention than a binary label.
+
+### 3. `max` is simple but discards joint evidence
+
+$\max(VSS,SPS)$ makes ranking easy, but $(0.8,0.1)$ and $(0.8,0.8)$ receive the same total score. Downstream analyses should preserve both coordinates rather than exporting only MELO-score.
+
+### 4. Internal consistency still needs checking
+
+For the SARS-CoV-2 spike example, the paper reports $VSS=0.56$ and $SPS=0.35$. Under its stated thresholds, that is Q4; the figure caption also calls it Q4, while one sentence in the main text says Q3. This article does not silently correct the authors. It records the inconsistency and interprets the numbers using the explicit decision rule.
+
+## When is MELO worth using?
+
+MELO is less about asking whether two proteins share a fold and more useful in these settings:
+
+- comparing apo/holo structures, ion-binding states, or environmental conditions;
+- testing whether missense mutations, short indels, or engineered variants create local changes;
+- screening large collections of sequence-similar structure pairs for candidates worthy of inspection;
+- tracing an aggregate difference back to residues, secondary structures, or domain relationships.
+
+A practical analysis sequence is: inspect structure quality and missing residues. MELO models missing residues and incomplete side chains, so identify which coordinates were repaired because they may affect local geometric features and VSS. Then verify that the alignment reflects biological correspondence; report VSS, SPS, and the quadrant rather than only the maximum; inspect both local plots; and finally test the structural hypothesis against experimental conditions, annotations, and independent evidence.
+
+MELO does not make RMSD, TM-score, or LDDT obsolete. These methods answer questions at different scales. Its most reusable design lesson is that, for subtle structural variation, **measuring magnitude, distinguishing the type of change, and locating the altered region** are related tasks that should not be collapsed into a single number.
+
+## Resources
+
+- [Original paper](https://www.nature.com/articles/s41467-025-68110-8)
+- [PubMed record](https://pubmed.ncbi.nlm.nih.gov/41490886/)
+- [MELO web server](https://melo.idrblab.cn/)
+- [Source code and installation](https://github.com/idrblab/MELO)
+- [Zenodo archive](https://doi.org/10.5281/zenodo.17360644)
+
+[^paper]: Zheng, L. et al. “Measuring and locating the changes in protein structure using MELO.” *Nature Communications* 17, 1360 (2026). DOI: [10.1038/s41467-025-68110-8](https://doi.org/10.1038/s41467-025-68110-8).
+[^data]: Runtime figures come from the paper's Data availability section and reflect the authors' benchmark; they should not be extrapolated directly across hardware, parallelization settings, or sequence lengths.
+[^dssp-fields]: For the DSSP method, see Kabsch, W. & Sander, C. “Dictionary of protein secondary structure: pattern recognition of hydrogen-bonded and geometrical features.” *Biopolymers* 22, 2577–2637 (1983). DOI: [10.1002/bip.360221211](https://doi.org/10.1002/bip.360221211).

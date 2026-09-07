@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -80,13 +78,9 @@ button { font: inherit; }
 .mobile-actions, .mobile-nav { display: none; }
 
 .editorial-hero { max-width: 1440px; margin: auto; padding: 38px 4.5vw 54px; border-bottom: 1px solid var(--border); }
-.issue-label { display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: .16em; font-size: 10px; color: var(--muted-foreground); }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(260px, .8fr); gap: 8vw; align-items: end; padding-top: 48px; }
-.eyebrow { color: var(--primary); text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 700; margin: 0 0 20px; }
 h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: clamp(56px, 7.4vw, 118px); line-height: .88; letter-spacing: -.065em; margin: 0; }
 h1 em { color: var(--primary); font-weight: 400; }
 .hero-aside { max-width: 360px; padding-bottom: 7px; }
-.hero-aside p { font-family: Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.55; margin: 0 0 26px; color: #37433f; }
 .hero-aside a, .paper-citation a { display: inline-flex; gap: 7px; align-items: center; color: var(--primary); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 
 .lead-story { max-width: 1440px; margin: auto; padding: 54px 4.5vw; display: grid; grid-template-columns: 8% minmax(0, 1.7fr) minmax(260px, .7fr); gap: 4vw; border-bottom: 1px solid var(--border); }
@@ -119,7 +113,6 @@ h1 em { color: var(--primary); font-weight: 400; }
 .article-card { display: grid; grid-template-columns: 70px minmax(0, 1fr) 48px; gap: 24px; align-items: start; padding: 34px 0; border-bottom: 1px solid var(--border); }
 .card-number { color: var(--primary); font: 12px ui-monospace, monospace; }
 .card-meta, .paper-card-top { display: flex; gap: 16px; align-items: center; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: .1em; font-size: 9px; }
-.demo-label { display: inline-flex; width: fit-content; padding: 4px 7px; border: 1px solid #85a99f; border-radius: 999px; color: var(--primary); font-size: 8px; text-transform: uppercase; letter-spacing: .09em; }
 .article-card h2, .paper-card h2 { font: 400 clamp(25px, 2.6vw, 39px)/1.09 Georgia, serif; letter-spacing: -.03em; margin: 14px 0 12px; max-width: 860px; }
 .article-card h2 a:hover, .paper-card h2 a:hover { color: var(--primary); }
 .article-card p { max-width: 750px; color: var(--muted-foreground); line-height: 1.65; margin: 0 0 20px; }
@@ -239,8 +232,6 @@ h1 em { color: var(--primary); font-weight: 400; }
   .mobile-nav { display: flex; flex-direction: column; gap: 0; position: absolute; z-index: 20; top: 76px; left: 0; right: 0; padding: 14px 20px 22px; background: var(--background); border-bottom: 1px solid var(--border); }
   .mobile-nav a { padding: 13px 0; border-bottom: 1px solid var(--border); font: 24px Georgia, serif; }
   .editorial-hero { padding: 28px 20px 38px; }
-  .issue-label span:last-child { display: none; }
-  .hero-grid { grid-template-columns: 1fr; gap: 35px; padding-top: 40px; }
   h1 { font-size: clamp(52px, 17vw, 76px); }
   .hero-aside { max-width: 100%; }
   .lead-story { padding: 38px 20px; grid-template-columns: 1fr; gap: 23px; }

@@ -12,5 +12,4 @@ export const topicDescription = (slug: string, locale: Locale) => {
   if (!topic) return '';
   return locale === 'zh' ? topic.descriptionZh : topic.descriptionEn;
 };
-export const formatDate = (date: string, locale: Locale) => new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
 export const authorsShort = (authors: readonly string[]) => authors.length > 4 ? `${authors[0]} et al.` : authors.join(', ');

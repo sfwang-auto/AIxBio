@@ -1,0 +1,16 @@
+{
+  "slug": "melo-protein-structure-change",
+  "topics": ["protein-structure"],
+  "papers": ["melo"],
+  "draft": true,
+  "translations": {
+    "zh": {
+      "title": "一个分数不够：MELO 如何测量并定位蛋白质结构变化",
+      "readingMinutes": 19
+    },
+    "en": {
+      "title": "One score is not enough: how MELO measures and locates protein structure change",
+      "readingMinutes": 19
+    }
+  }
+}
