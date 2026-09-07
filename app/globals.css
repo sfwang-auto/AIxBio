@@ -85,10 +85,8 @@ h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size
 .topic-strip b { color: var(--primary); font-family: ui-monospace, monospace; font-size: 9px; font-weight: 500; }
 
 .home-section, .listing-page, .related-section, .about-page { max-width: 1440px; margin: auto; padding: 74px 4.5vw; }
-.paper-section { background: color-mix(in srgb, var(--secondary) 28%, transparent); max-width: none; padding-left: max(4.5vw, calc((100vw - 1440px) / 2 + 4.5vw)); padding-right: max(4.5vw, calc((100vw - 1440px) / 2 + 4.5vw)); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; margin-bottom: 34px; }
-.section-heading > div { display: flex; gap: 20px; align-items: baseline; }
-.section-heading span { color: var(--primary); font: 11px ui-monospace, monospace; }
+.section-heading > div { display: flex; align-items: baseline; }
 .section-heading h2 { margin: 0; font: 400 clamp(30px, 3.1vw, 48px)/1 Georgia, serif; letter-spacing: -.035em; }
 .section-heading > a { display: inline-flex; align-items: center; gap: 9px; color: var(--primary); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; font-weight: 700; }
 .section-heading > a svg { width: 15px; }
