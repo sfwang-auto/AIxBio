@@ -23,6 +23,14 @@ npm run wechat:draft -- --slug riboseek-fast-nucleotide-alignment --dry-run
 
 确认本地转换结果后，把文章和代码推送到 `main`。`.github/workflows/wechat-draft.yml` 会自动找出本次提交中变化的中文文章，为每篇文章创建一个公众号草稿。
 
+如果没有固定 IP 的 VPS，可以在已加入微信公众号 IP 白名单的 Mac 上运行本地脚本：
+
+```bash
+npm run wechat:draft:local -- riboseek-fast-nucleotide-alignment
+```
+
+脚本会显示当前公网 IP，并在终端中隐藏读取 AppSecret。AppSecret 不会写入文件或提交到 Git。家庭网络公网 IP 变化后，需要先把新 IP 加入微信公众号白名单。
+
 也可以在 GitHub 的 `Actions → Create WeChat draft → Run workflow` 中手动输入文章 slug，重新创建指定文章的草稿。
 
 草稿转换会：

@@ -10,6 +10,7 @@
     "check:content": "node scripts/generate-content.mjs",
     "test:content": "node scripts/generate-content.mjs --self-test",
     "wechat:draft": "node scripts/wechat-draft.mjs",
+    "wechat:draft:local": "bash scripts/create-wechat-draft.sh",
     "predev": "npm run generate:content",
     "dev": "next dev",
     "prebuild": "npm run generate:content",
