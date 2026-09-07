@@ -16,6 +16,4 @@ export interface TopicRecord {
   slug: string;
   zh: string;
   en: string;
-  descriptionZh: string;
-  descriptionEn: string;
 }

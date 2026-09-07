@@ -27,13 +27,12 @@ const articleSchema = z.object({
   translations: z.object({ zh: localeCopy, en: localeCopy }).strict(),
 }).strict();
 
-const topicSchema = z.array(z.object({
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  zh: z.string().min(1),
-  en: z.string().min(1),
-  descriptionZh: z.string().min(1),
-  descriptionEn: z.string().min(1),
-}).strict());
+const topicLabels = {
+  'foundation-models': { zh: '基础模型', en: 'Foundation models' },
+  'protein-structure': { zh: '蛋白质结构', en: 'Protein structure' },
+  'single-cell': { zh: '单细胞', en: 'Single-cell' },
+  'nucleic-acids': { zh: '核酸', en: 'Nucleic acids' },
+};
 
 function assertUnique(records, label) {
   const slugs = new Set(records.map((record) => record.slug));
@@ -56,7 +55,7 @@ function runSelfTest() {
   if (!duplicateRejected) throw new Error('Self-test failed: duplicate slug was accepted');
   const normalizedImage = normalizeArticleAssetPaths('![Alt](../../../public/images/example.png)');
   if (normalizedImage !== '![Alt](/AIxBio/images/example.png)') throw new Error('Self-test failed: local article image path was not normalized');
-  console.log('Content contract self-test passed: bilingual pairing, HTTPS URLs, and duplicate slugs are enforced.');
+  console.log('Content contract self-test passed: bilingual pairing and duplicate slugs are enforced.');
 }
 
 async function json(file) {
@@ -64,8 +63,6 @@ async function json(file) {
 }
 
 async function main() {
-  const topicData = topicSchema.parse(await json(path.join(root, 'content/topics.json')));
-  const topicSlugs = new Set(topicData.map((topic) => topic.slug));
   const articleFolders = (await readdir(articlesRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
   const allArticleData = [];
   const articleData = [];
@@ -78,7 +75,6 @@ async function main() {
     const article = articleSchema.parse(await json(path.join(folderPath, 'meta.json')));
     article.toc = { zh: [], en: [] };
     if (article.slug !== folder) throw new Error(`Article slug "${article.slug}" must match folder "${folder}"`);
-    for (const topic of article.topics) if (!topicSlugs.has(topic)) throw new Error(`Unknown topic "${topic}" in article "${article.slug}"`);
     for (const locale of ['zh', 'en']) {
       const sourcePath = path.join(folderPath, `${locale}.mdx`);
       let source;
@@ -99,6 +95,9 @@ async function main() {
   }
 
   assertUnique(allArticleData, 'article');
+
+  const topicSlugs = [...new Set(articleData.flatMap((article) => article.topics))].sort();
+  const topicData = topicSlugs.map((slug) => ({ slug, ...(topicLabels[slug] ?? { zh: slug, en: slug.replaceAll('-', ' ') }) }));
 
   const imports = articleData.flatMap((article, index) => [
     `import Article${index}Zh from './generated/articles/${article.slug}.zh';`,

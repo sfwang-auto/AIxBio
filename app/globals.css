@@ -157,7 +157,6 @@ h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size
 .about-grid dd { margin: 8px 0 0; font-family: Georgia, serif; }
 
 .site-footer { max-width: 1440px; margin: auto; padding: 50px 4.5vw 30px; display: grid; grid-template-columns: 1fr; gap: 40px; border-top: 1px solid var(--border); }
-.site-footer strong { font: 600 25px Georgia, serif; }.site-footer strong i { color: var(--primary); font-style: normal; }
 .site-footer p { color: var(--muted-foreground); font-size: 12px; }
 .copyright { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 20px; }
 .not-found { min-height: 100vh; padding: 15vh 8vw; display: grid; place-content: center; text-align: center; }

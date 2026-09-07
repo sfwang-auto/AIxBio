@@ -25,7 +25,6 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const links = [
     [`/${locale}/articles`, copy.nav.articles],
     [`/${locale}/topics/foundation-models`, copy.nav.topics],
-    [`/${locale}/about`, copy.nav.about],
   ];
   return (
     <>
@@ -33,11 +32,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <Link href={`/${locale}`} className="brand" aria-label="AI x Bio home"><span className="brand-mark"><Dna size={18} strokeWidth={1.8} /></span><span>AI <i>×</i> Bio</span></Link>
         <nav aria-label="Primary navigation" className="desktop-nav">
           {links.map(([href, label]) => <Link key={href} href={href} className={pathname === href ? 'active' : ''}>{label}</Link>)}
-          <button className="search-button" aria-label={copy.search} onClick={() => setSearchOpen(true)}><Search size={17} /><kbd>⌘K</kbd></button>
+          <button type="button" className="search-button" aria-label={copy.search} onClick={() => setSearchOpen(true)}><Search size={17} /><kbd>⌘K</kbd></button>
           <Link className="locale-chip" href={alternatePath(pathname, otherLocale)} hrefLang={otherLocale}>{locale === 'zh' ? 'EN' : '中文'}</Link>
         </nav>
         <div className="mobile-actions">
-          <button className="search-button" aria-label={copy.search} onClick={() => setSearchOpen(true)}><Search size={19} /></button>
+          <button type="button" className="search-button" aria-label={copy.search} onClick={() => setSearchOpen(true)}><Search size={19} /></button>
           <button className="menu-button" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
       </header>
