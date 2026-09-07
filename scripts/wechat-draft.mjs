@@ -50,8 +50,40 @@ function extractDigest(source, title) {
   return truncate(plainText(firstParagraph), 120);
 }
 
+function flattenFootnotes(source) {
+  const lines = source.split(/\r?\n/);
+  const body = [];
+  const notes = [];
+  let currentNote = null;
+
+  const finishNote = () => {
+    if (currentNote) notes.push(currentNote);
+    currentNote = null;
+  };
+
+  for (const line of lines) {
+    const definition = line.match(/^\[\^([^\]]+)\]:\s*(.*)$/);
+    if (definition) {
+      finishNote();
+      currentNote = definition[2];
+      continue;
+    }
+    if (currentNote && (!line.trim() || /^\s{2,}/.test(line))) {
+      if (line.trim()) currentNote += ` ${line.trim()}`;
+      continue;
+    }
+    finishNote();
+    body.push(line);
+  }
+  finishNote();
+
+  const cleanedBody = body.join('\n').replace(/\[\^[^\]]+\]/g, '').trimEnd();
+  const references = notes.map((note) => `**参考文献**：${note}`).join('\n\n');
+  return references ? `${cleanedBody}\n\n${references}` : cleanedBody;
+}
+
 function prepareMarkdown(source) {
-  return source
+  return flattenFootnotes(source)
     .replace(/<div\s+className=["']article-figure["']>\s*/g, '')
     .replace(/\s*<\/div>/g, '')
     .replace(/^\s*(?:import|export) .*$/gm, '')
@@ -77,7 +109,7 @@ function styleForWechat(html) {
   styled = addStyle(styled, 'a', 'color: #1769aa; text-decoration: none;');
   styled = addStyle(styled, 'pre', 'overflow-x: auto; padding: 12px; background: #f5f7fa; color: #243b53; font-size: 13px; line-height: 1.6;');
   styled = addStyle(styled, 'code', 'font-size: 0.92em;');
-  return `<section style="max-width: 677px; margin: 0 auto; padding: 8px 4px; background: #ffffff;">${styled}</section>`;
+  return `<div style="max-width: 677px; margin: 0 auto; padding: 8px 4px; background: #ffffff;">${styled}</div>`;
 }
 
 async function markdownToHtml(source) {
@@ -186,6 +218,7 @@ async function main() {
   const thumbPath = path.resolve(root, process.env.WECHAT_THUMB_PATH || defaultThumbPath);
   const thumbMediaId = dryRun ? 'dry-run-thumb-media-id' : await uploadThumb(accessToken, thumbPath);
   const article = {
+    article_type: 'news',
     title,
     author: process.env.WECHAT_AUTHOR || 'AI × Bio',
     digest: extractDigest(source, title),
