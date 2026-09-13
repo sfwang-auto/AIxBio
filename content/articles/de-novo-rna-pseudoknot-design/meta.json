@@ -1,0 +1,13 @@
+{
+  "slug": "de-novo-rna-pseudoknot-design",
+  "topics": ["nucleic-acids"],
+  "draft": false,
+  "translations": {
+    "zh": {
+      "title": "先设计“结”，再观察三维折叠：深度学习如何从头构建 RNA 假结"
+    },
+    "en": {
+      "title": "Design the knot first: how deep learning builds RNA pseudoknots from scratch"
+    }
+  }
+}
