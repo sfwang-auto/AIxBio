@@ -1,0 +1,13 @@
+{
+  "slug": "peint-protein-evolution-in-time",
+  "topics": ["foundation-models", "protein-structure"],
+  "draft": false,
+  "translations": {
+    "zh": {
+      "title": "从独立位点到整条序列：PEINT 让蛋白质沿进化轨迹生成新序列"
+    },
+    "en": {
+      "title": "From independent sites to whole sequences: PEINT generates proteins along evolutionary trajectories"
+    }
+  }
+}

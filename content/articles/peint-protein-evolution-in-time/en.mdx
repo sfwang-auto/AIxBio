@@ -1,0 +1,277 @@
+> **Paper brief**: Koehl et al. introduce PEINT (Protein Evolution IN Time), a deep-learning framework that explicitly models how protein sequences evolve over time. Rather than treating amino-acid sites as independent dice, PEINT frames transitions between complete sequences as a sequence-to-sequence problem. It learns insertions, deletions, and higher-order interactions directly from unaligned sequences, and can generate highly novel proteins along phylogenetic trajectories while preserving structural and functional features.[^paper]
+
+## Why protein evolution models need to move beyond independent sites
+
+Protein evolution may look like a series of amino-acid substitutions, but protein structure and function are not determined one site at a time. A mutation at one position may require compensation at a distant position; inserting or deleting a residue can alter the geometry of an entire downstream region. These dependencies are often described as epistasis.
+
+Classical protein-evolution models such as WAG and LG use continuous-time Markov chains to make phylogenetic computation tractable. They can assign different rates to different sites, but the sites still evolve independently under the model. This approximation is useful, but it has two important limitations:
+
+- it struggles to represent whether a mutation is compatible with the current sequence background;
+- it typically relies on pre-aligned sequences and does not naturally describe insertions and deletions.
+
+<div className="article-figure">
+
+![Amino-acid substitution probabilities under an independent-sites model](../../../public/images/peint/fig1.png)
+
+*Amino-acid substitution probabilities in an independent-sites model.*
+
+</div>
+
+If a protein sequence is a sentence, an independent-sites model is like translating one word at a time without checking whether the whole sentence remains grammatical. A richer evolutionary model must alter local sequence while preserving global structural and functional constraints.
+
+## PEINT's central idea: sequence translation conditioned on time
+
+PEINT can be summarized by one question: given a starting sequence $x$ and an evolutionary time $t$, what is the probability of a descendant sequence $y$? In other words, the model learns $p(y\mid x,t)$. Here, $t$ corresponds to a branch length on a phylogenetic tree—the evolutionary distance accumulated between two sequences.
+
+The phylogenetic trees come from the protein-family data used in the study. A multiple sequence alignment first places roughly corresponding amino acids in the same columns. FastTree 2 then uses the similarities and differences across those columns to find a tree that best explains the observed relationships and to estimate evolutionary distances, producing an approximate maximum-likelihood phylogeny.
+
+Within each family tree, the observed sequences occupy the leaves, while the branching pattern represents their inferred relationships.
+
+With these trees in hand, the authors decompose training into many smaller tasks. They select pairs of closely related sequences and record the evolutionary distance between them. The model then learns what one complete sequence might look like given the other sequence and the time separating them. This formulation has two advantages:
+
+1. the model learns transitions from one complete sequence to another directly;
+2. the sequences need not correspond column by column in a multiple sequence alignment, allowing the model to learn insertions and deletions from native, unaligned sequences.
+
+<div className="article-figure">
+
+![PEINT reframes protein evolution as transitions between complete sequences](../../../public/images/peint/fig2.png)
+
+*PEINT reframes protein evolution as transitions between complete sequences.*
+
+</div>
+
+PEINT uses a coupled encoder–decoder Transformer, much like a machine-translation model. The encoder reads the starting protein, and the decoder generates a descendant conditioned on $t$. The final model adds roughly 57 million trainable parameters on top of representations from a frozen 150-million-parameter ESM2 model. Training combines masked language modeling on the input with autoregressive generation of the target sequence.
+
+<div className="article-figure">
+
+![PEINT encoder-decoder Transformer architecture](../../../public/images/peint/fig3.png)
+
+*The PEINT encoder–decoder Transformer.*
+
+</div>
+
+## Data: extracting evolutionary transitions from protein families
+
+The authors use roughly 15,000 protein-family multiple sequence alignments from the trRosetta dataset.[^trRosetta]
+
+To test generalization, the study uses two splitting strategies. Roughly 550 families are held out in their entirety, testing whether the model can generalize to families it has never seen. The remaining roughly 14,500 families receive an in-family holdout split. Rather than dividing sequences at random, the authors identify an early branch in each family tree that yields two subtrees with similar numbers of sequences. One subtree is used for training and the other for testing. The subtrees belong to the same family but represent relatively independent evolutionary paths, so the split tests whether the model can generalize to unseen members of a familiar family instead of simply memorizing close neighbors.
+
+<div className="article-figure">
+
+![Family-level and within-family holdout strategies](../../../public/images/peint/fig4.png)
+
+*Family-level and within-family holdout strategies.*
+
+</div>
+
+## Three levels of evidence: better fits, accurate time estimates, and more realistic sequences
+
+### 1. PEINT better explains how protein sequences change over time
+
+To test whether a model can explain observed sequence changes, the authors take a pair of sequences from a phylogenetic tree. They treat one as the starting sequence, provide the evolutionary distance between the pair, and ask the model to score the other, observed sequence. This score is the transition likelihood: a higher value means that the model considers the target more plausible after the specified amount of evolution. PEINT, WAG, and LG are evaluated on the same sequence pairs and distances under both in-family holdouts and entirely unseen families.
+
+Under both evaluation settings, PEINT achieves higher transition likelihoods than WAG and LG and retains its advantage across evolutionary distances.
+
+<div className="article-figure">
+
+![Transition likelihoods for PEINT, WAG, and LG](../../../public/images/peint/fig5.png)
+
+*Transition likelihoods across evolutionary distances.*
+
+</div>
+
+### 2. PEINT estimates evolutionary time from sequence pairs
+
+An evolutionary model should not only generate sequences for a specified time; it should also estimate the evolutionary time separating two observed sequences. Given $x$ and $y$, the authors treat $t$ as an unknown and combine transition likelihoods in both directions: $S_t = p(y\mid x,t) + p(x\mid y,t)$.
+
+Here, $p(y\mid x,t)$ is the likelihood of generating the complete sequence $y$ from $x$ after time $t$, and $p(x\mid y,t)$ describes the reverse transition. The likelihood curves are concave in $t$, allowing the authors to locate the peak of $S_t$ with gradient ascent. Across 150 randomly selected test families, PEINT’s evolutionary-distance estimates closely agree with those from classical models, reaching Pearson’s $r = 0.95$.
+
+<div className="article-figure">
+
+![Estimating evolutionary time from sequence pairs with PEINT](../../../public/images/peint/fig6.png)
+
+*Left: likelihood versus evolutionary time for one pair; middle: estimates within one family; right: estimates across 150 test families.*
+
+</div>
+
+### 3. At the same mutational load, generated sequences retain higher structural confidence
+
+Starting from the same sequence, the authors use PEINT, WAG, and LG to generate descendants at increasing evolutionary times, then evaluate structural confidence with single-sequence predictors such as OmegaFold.
+
+All three model classes produce more mutations as time increases. The crucial difference is whether those mutated sequences retain high-confidence predicted structures. PEINT-generated sequences maintain high folding confidence on average beyond one evolutionary time unit, by which point roughly half of the starting protein’s sites have changed. WAG and LG show a sharp decline in structural quality at longer times.
+
+<div className="article-figure">
+
+![Mutational load and structural confidence across evolutionary time](../../../public/images/peint/fig7.png)
+
+*Left: mutational load over time; right: structural confidence of generated descendants.*
+
+</div>
+
+A plausible explanation is that PEINT learns compensatory mutations. Once one position changes, the decoder conditions on the altered sequence background and can introduce changes elsewhere that preserve important contacts. Independent-site models cannot readily express such coordinated sets of mutations.
+
+## Replaying evolution across a tree: do recursively generated sequences remain protein-like?
+
+Protein families change over many successive generations. A more demanding test is therefore to generate descendants recursively from the root down a tree and ask whether the resulting leaves still resemble naturally evolved proteins.
+
+The authors select roughly 550 phylogenetic trees from fully held-out families. For each tree, they choose an observed sequence whose length is at the family median as a new root, then generate descendants recursively along the branches.
+
+<div className="article-figure">
+
+![Simulating protein evolution down a phylogenetic tree](../../../public/images/peint/fig8.png)
+
+*Simulating protein evolution down a phylogenetic tree.*
+
+</div>
+
+### Amino-acid patterns at conserved sites
+
+Using the human TRAAK mechanosensitive ion channel as an example, the authors identify sites that are more than 75% conserved in an alignment of homologs. They then compare amino-acid distributions at those sites between real evaluation sequences and model-generated sequences, using Jensen–Shannon divergence to quantify the difference. Lower values indicate a closer match to the natural pattern. PEINT reproduces the real distributions more closely than WAG or LG, and the same trend holds across the remaining 545 held-out trees.
+
+<div className="article-figure">
+
+![Conserved-site amino-acid patterns in TRAAK and held-out families](../../../public/images/peint/fig9.png)
+
+*Left: conserved-site patterns in human TRAAK; right: Jensen–Shannon divergence across 545 held-out families.*
+
+</div>
+
+### Indel patterns
+
+Protein evolution also changes sequence length through insertions and deletions. PEINT can therefore make a descendant longer or shorter as it generates the sequence. Counting indel events on a branch normally requires its ancestral sequence, which is unavailable in the observed data. The authors instead use Historian to estimate indel statistics from the leaf sequences and tree structure, then compare those estimates with the simulations. PEINT recapitulates both family-specific indel rates and the typical number of amino acids affected by an event.
+
+<div className="article-figure">
+
+![Insertion and deletion frequencies and event-length distributions](../../../public/images/peint/fig10.png)
+
+*Left: insertion and deletion frequencies; right: event-length distributions.*
+
+</div>
+
+### Structural confidence
+
+For each simulated family, the authors randomly select 30 leaf sequences, predict their structures with AF2Rank and OmegaFold, and use the median pLDDT as a family-level structural-confidence score. PEINT leaves achieve pLDDT values close to those of real sequences and significantly higher than those generated by the best classical model.
+
+<div className="article-figure">
+
+![Structural confidence of real and simulated leaf sequences](../../../public/images/peint/fig11.png)
+
+*Structural confidence of real and simulated leaf sequences.*
+
+</div>
+
+The authors also evaluate the generated families as multiple sequence alignments. They assemble the simulated leaves into an MSA and provide it directly to AlphaFold2. Alignments built from WAG- and LG-generated sequences yield lower structural confidence. PEINT-generated alignments approach the confidence of real-sequence MSAs, although they remain slightly below them.
+
+<div className="article-figure">
+
+![AlphaFold2 confidence from simulated multiple sequence alignments](../../../public/images/peint/fig12.png)
+
+*AlphaFold2 confidence from simulated multiple sequence alignments.*
+
+</div>
+
+## Experimental validation: simulated sequences retain carbonic-anhydrase activity
+
+To test whether sequences generated along an evolutionary trajectory retain activity, the authors start from pea (*Pisum sativum*) β-carbonic anhydrase and run unfiltered PEINT and LG simulations on the same tree. They then experimentally characterize selected leaves.
+
+When zinc is included in structural predictions, the sequences recover the coordination geometry required for catalysis, while neighboring regions show more sequence and structural variation. Most leaves from either model share only about 40–50% identity with their closest match in the NCBI nonredundant database.
+
+The authors then randomly select 20 leaves from the PEINT tree and test them in a functional-complementation system lacking carbonic anhydrase. D152N serves as a functionally impaired control: the mutation disrupts proton transfer during catalysis and retains only weak activity. Six of the 20 designs restore growth better than D152N. Thus, although these simulated sequences have moved far from the starting wild-type protein, some still retain carbonic-anhydrase activity.
+
+## PEINT also predicts variant effects
+
+Natural protein families record changes that survived long-term selection. Modeling those relationships can therefore support not only evolutionary simulation, but also the assessment of whether a new mutation is compatible with a family’s constraints.
+
+The authors use the MSAs provided by ProteinGym, following the same procedure to infer phylogenetic trees and extract evolutionary transitions. For each of the 201 families in the substitution benchmark, they select 1,000 transitions and train a smaller PEINT model with roughly 23 million trainable parameters on top of representations from the 150-million-parameter ESM2 model. Compared with ESM2 alone, PEINT performs better across deep-mutational-scanning tasks. The improvement is especially pronounced when a mutant differs from wild type at more than two positions.
+
+<div className="article-figure">
+
+![PEINT performance on the ProteinGym variant-effect-prediction benchmark](../../../public/images/peint/fig13.png)
+
+*Left: the ProteinGym variant-effect-prediction benchmark; right: PEINT's gains are larger for multi-mutants.*
+
+</div>
+
+The authors also replace the encoder with a 650-million-parameter ESM2 model and retrain PEINT. This larger ESM2 has better zero-shot performance than the 150-million-parameter version, and the PEINT model built on top of it improves variant-effect prediction further.
+
+## Mechanistic clues from PEINT: site couplings and sequence correspondences
+
+To understand how PEINT uses interactions within a sequence, the authors perform a categorical-Jacobian analysis. They perturb individual positions in the input sequence or among residues already generated by the decoder, then observe how each perturbation changes the model’s output elsewhere.
+
+<div className="article-figure">
+
+![Sitewise perturbation analysis with the categorical Jacobian](../../../public/images/peint/fig14.png)
+
+*Sitewise perturbation analysis with the categorical Jacobian.*
+
+</div>
+
+As a concrete example, the paper compares the categorical-Jacobian matrix for an input sequence from PDB 4K6E with its structural contact map. Among the top $L$ strongest couplings, residue pairs that form structural contacts are colored blue and the others red, making agreement with the physical structure directly visible.
+
+<div className="article-figure">
+
+![Categorical-Jacobian couplings compared with the structural contact map](../../../public/images/peint/fig15.png)
+
+*Upper right: categorical-Jacobian couplings; lower left: structural contacts. In the overlay, gray marks contacts, blue true positives, and red false positives.*
+
+</div>
+
+At larger scale, the authors aggregate Precision@$L$ for the top $L$ categorical-Jacobian couplings across 553 test-family sequences, comparing the PEINT decoder with the encoder-only ESM model. The strongest PEINT decoder couplings do correlate with structure, although less strongly than those learned by ESM.
+
+<div className="article-figure">
+
+![Contact precision of categorical-Jacobian couplings from PEINT and ESM](../../../public/images/peint/fig16.png)
+
+*Precision@$L$ for categorical-Jacobian couplings from the PEINT decoder and ESM.*
+
+</div>
+
+The authors also examine cross-module categorical-Jacobian couplings between the encoder and decoder. These couplings strongly resemble pairwise-alignment trace matrices, suggesting that the decoder aligns the sequence being generated with representations of the starting sequence. This implicit alignment may be an important source of PEINT’s ability to model evolutionary transitions.
+
+<div className="article-figure">
+
+![Perturbation analysis across the PEINT encoder and decoder](../../../public/images/peint/fig17.png)
+
+*Perturbation analysis across the PEINT encoder and decoder.*
+
+</div>
+
+To make that signal concrete, the authors examine a sequence pair from a Pfam seed alignment. Gray squares mark the Pfam reference alignment. Above it, the Needleman–Wunsch result is colored green where it agrees with the reference and red where it does not. Below it, the encoder–decoder categorical Jacobian is colored by the same criterion. An inset shows the raw Jacobian values around an inserted region, revealing a “soft alignment” near the gap.
+
+<div className="article-figure">
+
+![Needleman-Wunsch and PEINT alignment signals on a Pfam sequence pair](../../../public/images/peint/fig18.png)
+
+*Needleman–Wunsch and PEINT alignment signals on a Pfam sequence pair.*
+
+</div>
+
+Across 1,000 randomly selected Pfam domain seed alignments, the authors evaluate alignment F1 as a function of pairwise identity in the reference alignment. PEINT’s F1 rises with sequence identity and is broadly comparable to Needleman–Wunsch, even though the model was never trained explicitly to align sequences.
+
+<div className="article-figure">
+
+![Alignment F1 from PEINT categorical Jacobians and Needleman-Wunsch](../../../public/images/peint/fig19.png)
+
+*Alignment F1 from PEINT categorical Jacobians and Needleman–Wunsch.*
+
+</div>
+
+## Two limitations: time labels and temporal direction
+
+PEINT’s time labels come from phylogenetic trees and branch lengths inferred from multiple sequence alignments, whereas the model learns transitions between full-length sequences re-extracted from UniProt. In other words, a $t$ defined from the aligned core is used to describe transitions between complete sequences. The paper does not specifically test, through full-length simulations or a dedicated analysis, whether this core-derived $t$ also captures evolutionary distance across the entire sequence.
+
+Moreover, although PEINT can generate different degrees of sequence change at different values of $t$, it is learning how far a sequence has moved through evolutionary space, not a historical direction from past to future. PEINT captures evolutionary constraints, but not yet the “arrow of evolutionary time.”
+
+## The broader contribution: reconnecting protein language with time
+
+Protein language models learn statistical patterns from vast sequence collections. Protein-design models propose candidates in sequence space. Classical evolutionary models provide explicit time and tree structure. PEINT connects capabilities that have often remained separate:
+
+- the expressive capacity of deep models to represent higher-order sequence dependencies;
+- evolutionary time as an interpretable conditioning variable;
+- trajectories that start from one sequence and generate descendants along a tree at specified evolutionary times;
+- family-specific evolutionary information for variant-effect prediction.
+
+PEINT therefore has at least three potential uses: producing more realistic simulations for benchmarking phylogenetic methods; replaying or perturbing protein-family evolution under controlled conditions; and generating more structurally constrained starting points for machine-learning-guided protein engineering.
+
+[^paper]: Koehl, A. et al. “Deep models of protein evolution in time generate realistic evolutionary trajectories and functional proteins.” *bioRxiv*, 2026.02.19.706898v1. DOI: [10.64898/2026.02.19.706898](https://doi.org/10.64898/2026.02.19.706898). This article discusses a preprint that has not undergone peer review; later versions may revise the data, analyses, or wording.
+[^trRosetta]: Yang, J. et al. “Improved protein structure prediction using predicted interresidue orientations.” *PNAS* 117, 1496–1503 (2020). DOI: [10.1073/pnas.1914677117](https://doi.org/10.1073/pnas.1914677117). [trRosetta data and multiple sequence alignments](https://yanglab.qd.sdu.edu.cn/trRosetta/benchmark/).
